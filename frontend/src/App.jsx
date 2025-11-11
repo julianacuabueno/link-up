@@ -6,7 +6,11 @@ import './App.css'
 function App() {
   const [count, setCount] = useState(0)
 
+<<<<<<< HEAD
   fetch("/api/test-get")
+=======
+  fetch ("/api/test-get")
+>>>>>>> 5120da4bb5e87c47b723b3852c3e549254d19b46
     .then(response => response.json())
     .then(json => console.log(json));
 
