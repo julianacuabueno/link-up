@@ -17,8 +17,9 @@ import AddIcon from '@mui/icons-material/Add';
 import InfoIcon from '@mui/icons-material/Info';
 import FeedbackIcon from '@mui/icons-material/Feedback';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import ComputerIcon from '@mui/icons-material/Computer';
+// import ComputerIcon from '@mui/icons-material/Computer';
 import UserProfile from './UserProfile';
+import LinkUp from  "../images/LinkUp.png";
 
 const drawerWidth = 280;
 
@@ -48,12 +49,12 @@ const Navbar = () => {
       sx={{
         width: drawerWidth,
         flexShrink: 0,
-        '& .MuiDrawer-paper': {
+        "& .MuiDrawer-paper": {
           width: drawerWidth,
-          boxSizing: 'border-box',
-          bgcolor: '#0f0f1e',
-          color: '#fff',
-          border: 'none',
+          boxSizing: "border-box",
+          bgcolor: "#0f0f1e",
+          color: "#fff",
+          border: "none",
         },
       }}
     >
@@ -61,15 +62,20 @@ const Navbar = () => {
       <Box
         sx={{
           p: 2,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          borderBottom: '1px solid #2a2a3e',
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          borderBottom: "1px solid #2a2a3e",
           mb: 1,
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Box
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+          <img
+            src={LinkUp}
+            alt="Link-Up Logo"
+            style={{ width: 40, height: 40 }}
+          />
+          {/* <Box
             sx={{
               bgcolor: '#2a2a3e',
               borderRadius: 1,
@@ -79,16 +85,17 @@ const Navbar = () => {
               justifyContent: 'center',
             }}
           >
-            <ComputerIcon sx={{ color: '#8e8ea0', fontSize: 24 }} /> 
-            {/* {change icon to app logo } */}
-          </Box>
+            <img src={logo} alt="Link-Up Logo" style={{ width: 24, height: 24 }} />
+            <ComputerIcon sx={{ color: '#8e8ea0', fontSize: 24 }} />  */}
+          {/* {change icon to app logo } */}
+          {/* </Box> */}
           <Box>
             <Typography
               variant="h6"
               sx={{
                 fontWeight: 600,
-                fontSize: '1.1rem',
-                color: '#fff',
+                fontSize: "1.1rem",
+                color: "#fff",
               }}
             >
               Link-Up
@@ -96,8 +103,8 @@ const Navbar = () => {
             <Typography
               variant="body2"
               sx={{
-                color: '#8e8ea0',
-                fontSize: '0.85rem',
+                color: "#8e8ea0",
+                fontSize: "0.85rem",
               }}
             >
               Make plans with ease
@@ -106,9 +113,9 @@ const Navbar = () => {
         </Box>
         <IconButton
           sx={{
-            color: '#8e8ea0',
-            '&:hover': {
-              bgcolor: '#2a2a3e',
+            color: "#8e8ea0",
+            "&:hover": {
+              bgcolor: "#2a2a3e",
             },
           }}
         >
@@ -126,33 +133,38 @@ const Navbar = () => {
             sx={{
               borderRadius: 1.5,
               mb: 0.5,
-              '&.Mui-selected': {
-                bgcolor: '#2a2a3e',
-                '&:hover': {
-                  bgcolor: '#333347',
+              "&.Mui-selected": {
+                bgcolor: "#2a2a3e",
+                "&:hover": {
+                  bgcolor: "#333347",
                 },
               },
-              '&:hover': {
-                bgcolor: '#1a1a2e',
+              "&:hover": {
+                bgcolor: "#1a1a2e",
               },
             }}
           >
-            <ListItemIcon sx={{ color: selectedItem === item.name ? '#fff' : '#8e8ea0', minWidth: 40 }}>
+            <ListItemIcon
+              sx={{
+                color: selectedItem === item.name ? "#fff" : "#8e8ea0",
+                minWidth: 40,
+              }}
+            >
               {item.icon}
             </ListItemIcon>
             <ListItemText
               primary={item.name}
               primaryTypographyProps={{
-                fontSize: '0.95rem',
+                fontSize: "0.95rem",
                 fontWeight: selectedItem === item.name ? 600 : 400,
-                color: selectedItem === item.name ? '#fff' : '#b0b0c0',
+                color: selectedItem === item.name ? "#fff" : "#b0b0c0",
               }}
             />
           </ListItemButton>
         ))}
 
         {/* Bottom Menu Items */}
-        <Box sx={{ mt: 'auto', pt: 2 }}>
+        <Box sx={{ mt: "auto", pt: 2 }}>
           {bottomMenuItems.map((item) => (
             <ListItemButton
               key={item.name}
@@ -161,26 +173,31 @@ const Navbar = () => {
               sx={{
                 borderRadius: 1.5,
                 mb: 0.5,
-                '&.Mui-selected': {
-                  bgcolor: '#2a2a3e',
-                  '&:hover': {
-                    bgcolor: '#333347',
+                "&.Mui-selected": {
+                  bgcolor: "#2a2a3e",
+                  "&:hover": {
+                    bgcolor: "#333347",
                   },
                 },
-                '&:hover': {
-                  bgcolor: '#1a1a2e',
+                "&:hover": {
+                  bgcolor: "#1a1a2e",
                 },
               }}
             >
-              <ListItemIcon sx={{ color: selectedItem === item.name ? '#fff' : '#8e8ea0', minWidth: 40 }}>
+              <ListItemIcon
+                sx={{
+                  color: selectedItem === item.name ? "#fff" : "#8e8ea0",
+                  minWidth: 40,
+                }}
+              >
                 {item.icon}
               </ListItemIcon>
               <ListItemText
                 primary={item.name}
                 primaryTypographyProps={{
-                  fontSize: '0.95rem',
+                  fontSize: "0.95rem",
                   fontWeight: selectedItem === item.name ? 600 : 400,
-                  color: selectedItem === item.name ? '#fff' : '#b0b0c0',
+                  color: selectedItem === item.name ? "#fff" : "#b0b0c0",
                 }}
               />
             </ListItemButton>

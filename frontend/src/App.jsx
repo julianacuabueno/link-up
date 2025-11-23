@@ -20,10 +20,12 @@ function App() {
         sx={{
           flexGrow: 1,
           bgcolor: '#1a1a2e',
-          p: 3,
+          p: 8,
+          minHeight: '100vh',
+          width: '100%',
         }}
       >
-        <h1 style={{ color: '#fff' }}>Welcome Link-Up</h1>
+        <h1 style={{ color: '#fff' }}>Welcome to Link-Up</h1>
         <p style={{ color: '#8e8ea0' }}>
           Click on the navigation items to switch views.
         </p>
