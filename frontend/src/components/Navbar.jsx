@@ -20,6 +20,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 // import ComputerIcon from '@mui/icons-material/Computer';
 import UserProfile from './UserProfile';
 import LinkUp from  "../images/LinkUp.png";
+import BlackLogo from "../images/black-logo.png";
 
 const drawerWidth = 280;
 
@@ -76,7 +77,7 @@ const Navbar = () => {
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
           <img
-            src={LinkUp}
+            src={BlackLogo}
             alt="Link-Up Logo"
             style={{ width: 40, height: 40 }}
           />
