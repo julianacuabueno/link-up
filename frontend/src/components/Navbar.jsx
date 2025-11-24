@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Drawer,
   List,
@@ -13,7 +13,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import EventIcon from '@mui/icons-material/Event';
 import AddIcon from '@mui/icons-material/Add';
 // import AssignmentIcon from '@mui/icons-material/Assignment';
-// import SettingsIcon from '@mui/icons-material/Settings';
+import SettingsIcon from '@mui/icons-material/Settings';
 import InfoIcon from '@mui/icons-material/Info';
 import FeedbackIcon from '@mui/icons-material/Feedback';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -24,23 +24,28 @@ import LinkUp from  "../images/LinkUp.png";
 const drawerWidth = 280;
 
 const Navbar = () => {
-  const [selectedItem, setSelectedItem] = useState('Home');
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const handleMenuClick = (itemName) => {
-    setSelectedItem(itemName);
+  const handleMenuClick = (path) => {
+    navigate(path);
+  };
+
+  const isSelected = (path) => {
+    return location.pathname === path;
   };
 
   const mainMenuItems = [
-    { name: 'Home', icon: <HomeIcon /> },
-    { name: 'Event', icon: <EventIcon /> },
-    { name: 'Create', icon: <AddIcon /> },
-    // { name: 'Tasks', icon: <AssignmentIcon /> },
+    { name: 'Home', icon: <HomeIcon />, path: '/' },
+    { name: 'Event', icon: <EventIcon />, path: '/events' },
+    { name: 'Create', icon: <AddIcon />, path: '/create' },
+    // { name: 'Tasks', icon: <AssignmentIcon />, path: '/tasks' },
   ];
 
   const bottomMenuItems = [
-    // { name: 'Settings', icon: <SettingsIcon /> },  // move setting into profile
-    { name: 'About', icon: <InfoIcon /> },
-    { name: 'Feedback', icon: <FeedbackIcon /> },
+    { name: 'Settings', icon: <SettingsIcon />, path: '/settings' },
+    { name: 'About', icon: <InfoIcon />, path: '/about' },
+    { name: 'Feedback', icon: <FeedbackIcon />, path: '/feedback' },
   ];
 
   return (
@@ -128,8 +133,8 @@ const Navbar = () => {
         {mainMenuItems.map((item) => (
           <ListItemButton
             key={item.name}
-            selected={selectedItem === item.name}
-            onClick={() => handleMenuClick(item.name)}
+            selected={isSelected(item.path)}
+            onClick={() => handleMenuClick(item.path)}
             sx={{
               borderRadius: 1.5,
               mb: 0.5,
@@ -146,7 +151,7 @@ const Navbar = () => {
           >
             <ListItemIcon
               sx={{
-                color: selectedItem === item.name ? "#fff" : "#8e8ea0",
+                color: isSelected(item.path) ? "#fff" : "#8e8ea0",
                 minWidth: 40,
               }}
             >
@@ -156,8 +161,8 @@ const Navbar = () => {
               primary={item.name}
               primaryTypographyProps={{
                 fontSize: "0.95rem",
-                fontWeight: selectedItem === item.name ? 600 : 400,
-                color: selectedItem === item.name ? "#fff" : "#b0b0c0",
+                fontWeight: isSelected(item.path) ? 600 : 400,
+                color: isSelected(item.path) ? "#fff" : "#b0b0c0",
               }}
             />
           </ListItemButton>
@@ -168,8 +173,8 @@ const Navbar = () => {
           {bottomMenuItems.map((item) => (
             <ListItemButton
               key={item.name}
-              selected={selectedItem === item.name}
-              onClick={() => handleMenuClick(item.name)}
+              selected={isSelected(item.path)}
+              onClick={() => handleMenuClick(item.path)}
               sx={{
                 borderRadius: 1.5,
                 mb: 0.5,
@@ -186,7 +191,7 @@ const Navbar = () => {
             >
               <ListItemIcon
                 sx={{
-                  color: selectedItem === item.name ? "#fff" : "#8e8ea0",
+                  color: isSelected(item.path) ? "#fff" : "#8e8ea0",
                   minWidth: 40,
                 }}
               >
@@ -196,8 +201,8 @@ const Navbar = () => {
                 primary={item.name}
                 primaryTypographyProps={{
                   fontSize: "0.95rem",
-                  fontWeight: selectedItem === item.name ? 600 : 400,
-                  color: selectedItem === item.name ? "#fff" : "#b0b0c0",
+                  fontWeight: isSelected(item.path) ? 600 : 400,
+                  color: isSelected(item.path) ? "#fff" : "#b0b0c0",
                 }}
               />
             </ListItemButton>
