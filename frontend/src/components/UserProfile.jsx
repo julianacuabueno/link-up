@@ -1,13 +1,31 @@
-import { useState } from 'react';
-import { Box, Avatar, Typography, IconButton, Menu, MenuItem } from '@mui/material';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { useNavigate, useLocation } from "react-router-dom";
+import { useState } from "react";
+import {
+  Box,
+  Avatar,
+  Typography,
+  IconButton,
+  Menu,
+  MenuItem,
+} from "@mui/material";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 const UserProfile = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleMenuClick = (path) => {
+    navigate(path);
+  };
+
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
+  };
+  const isSelected = (path) => {
+    return location.pathname === path;
   };
 
   const handleClose = () => {
@@ -17,19 +35,19 @@ const UserProfile = () => {
   return (
     <Box
       sx={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
         p: 2,
-        borderTop: '1px solid #2a2a3e',
+        borderTop: "1px solid #2a2a3e",
       }}
     >
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
         <Avatar
           sx={{
             width: 40,
             height: 40,
-            bgcolor: '#4a90e2',
+            bgcolor: "#4a90e2",
           }}
         >
           U
@@ -38,9 +56,9 @@ const UserProfile = () => {
           <Typography
             variant="body1"
             sx={{
-              color: '#fff',
+              color: "#fff",
               fontWeight: 500,
-              fontSize: '0.95rem',
+              fontSize: "0.95rem",
             }}
           >
             UserName
@@ -48,8 +66,8 @@ const UserProfile = () => {
           <Typography
             variant="body2"
             sx={{
-              color: '#8e8ea0',
-              fontSize: '0.8rem',
+              color: "#8e8ea0",
+              fontSize: "0.8rem",
             }}
           >
             user@email.com
@@ -59,9 +77,9 @@ const UserProfile = () => {
       <IconButton
         onClick={handleClick}
         sx={{
-          color: '#8e8ea0',
-          '&:hover': {
-            bgcolor: '#2a2a3e',
+          color: "#8e8ea0",
+          "&:hover": {
+            bgcolor: "#2a2a3e",
           },
         }}
       >
@@ -72,19 +90,31 @@ const UserProfile = () => {
         open={open}
         onClose={handleClose}
         sx={{
-          '& .MuiPaper-root': {
-            bgcolor: '#1a1a2e',
-            border: '1px solid #2a2a3e',
+          "& .MuiPaper-root": {
+            bgcolor: "#1a1a2e",
+            border: "1px solid #2a2a3e",
           },
         }}
       >
-        <MenuItem onClick={handleClose} sx={{ color: '#fff' }}>
+        <MenuItem
+          onClick={() => {
+            handleClose();
+            handleMenuClick('/profile');
+          }}
+          sx={{ color: "#fff" }}
+        >
           Profile
         </MenuItem>
-        <MenuItem onClick={handleClose} sx={{ color: '#fff' }}>
+        <MenuItem
+          onClick={() => {
+            handleClose();
+            handleMenuClick('/account-settings');
+          }}
+          sx={{ color: "#fff" }}
+        >
           Account Settings
         </MenuItem>
-        <MenuItem onClick={handleClose} sx={{ color: '#fff' }}>
+        <MenuItem onClick={handleClose} sx={{ color: "#fff" }}>
           Logout
         </MenuItem>
       </Menu>

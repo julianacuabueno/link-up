@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Box } from '@mui/material'
+// import { Typography } from '@mui/material'
 import Navbar from './components/Navbar'
 import Home from './pages/Home'
 import Event from './pages/Event'
@@ -8,6 +9,7 @@ import Create from './pages/Create'
 import Settings from './pages/Settings'
 import About from './pages/About'
 import Feedback from './pages/Feedback'
+import AccountSettings from './pages/AccountSettings'
 
 import './App.css'
 
@@ -42,6 +44,7 @@ function App() {
             <Route path="/settings" element={<Settings />} />
             <Route path="/about" element={<About />} />
             <Route path="/feedback" element={<Feedback />} />
+            <Route path="/account-settings" element={<AccountSettings />} />
           </Routes>
         </Box>
       </Box>
