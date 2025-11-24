@@ -3,15 +3,16 @@ import Footer from '../components/Footer';
 
 const Settings = () => {
   return (
-    <Box>
-      <Typography variant="h3" sx={{ color: '#fff', mb: 3, fontWeight: 600 }}>
-        Settings
-      </Typography>
-      <Typography variant="body1" sx={{ color: '#8e8ea0', mb: 4 }}>
-        Manage your account preferences and notifications
-      </Typography>
+    <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+      <Box sx={{ flexGrow: 1 }}>
+        <Typography variant="h3" sx={{ color: '#fff', mb: 3, fontWeight: 600 }}>
+          Settings
+        </Typography>
+        <Typography variant="body1" sx={{ color: '#8e8ea0', mb: 4 }}>
+          Manage your account preferences and notifications
+        </Typography>
 
-      <Stack spacing={3} sx={{ maxWidth: 600 }}>
+        <Stack spacing={3} sx={{ maxWidth: 600 }}>
         <Card
           sx={{
             bgcolor: '#2a2a3e',
@@ -68,7 +69,8 @@ const Settings = () => {
             </Stack>
           </CardContent>
         </Card>
-      </Stack>
+        </Stack>
+      </Box>
       <Footer/>
     </Box>
   );

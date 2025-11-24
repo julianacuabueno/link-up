@@ -27,8 +27,11 @@ function App() {
           sx={{
             flexGrow: 1,
             bgcolor: '#1a1a2e',
-            p: 8,
-            minHeight: '100vh',
+            px: 8,
+            pt: 0,
+            pb: 8,
+            display: 'flex',
+            flexDirection: 'column',
             width: '100%',
           }}
         >

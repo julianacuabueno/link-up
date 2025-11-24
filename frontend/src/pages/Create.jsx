@@ -4,15 +4,16 @@ import Footer from '../components/Footer';
 
 const Create = () => {
   return (
-    <Box>
-      <Typography variant="h3" sx={{ color: '#fff', mb: 3, fontWeight: 600 }}>
-        Create New Event
-      </Typography>
-      <Typography variant="body1" sx={{ color: '#8e8ea0', mb: 4 }}>
-        Plan a new event and invite your friends
-      </Typography>
+    <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+      <Box sx={{ flexGrow: 1 }}>
+        <Typography variant="h3" sx={{ color: '#fff', mb: 3, fontWeight: 600 }}>
+          Create New Event
+        </Typography>
+        <Typography variant="body1" sx={{ color: '#8e8ea0', mb: 4 }}>
+          Plan a new event and invite your friends
+        </Typography>
 
-      <Card
+        <Card
         sx={{
           bgcolor: '#2a2a3e',
           border: '1px solid #3a3a4e',
@@ -167,6 +168,7 @@ const Create = () => {
           </Stack>
         </CardContent>
       </Card>
+      </Box>
       <Footer/>
     </Box>
   );

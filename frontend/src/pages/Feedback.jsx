@@ -4,15 +4,16 @@ import Footer from '../components/Footer';
 
 const Feedback = () => {
   return (
-    <Box>
-      <Typography variant="h3" sx={{ color: '#fff', mb: 3, fontWeight: 600 }}>
-        Feedback
-      </Typography>
-      <Typography variant="body1" sx={{ color: '#8e8ea0', mb: 4 }}>
-        We'd love to hear your thoughts and suggestions
-      </Typography>
+    <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+      <Box sx={{ flexGrow: 1 }}>
+        <Typography variant="h3" sx={{ color: '#fff', mb: 3, fontWeight: 600 }}>
+          Feedback
+        </Typography>
+        <Typography variant="body1" sx={{ color: '#8e8ea0', mb: 4 }}>
+          We'd love to hear your thoughts and suggestions
+        </Typography>
 
-      <Card
+        <Card
         sx={{
           bgcolor: '#2a2a3e',
           border: '1px solid #3a3a4e',
@@ -109,6 +110,7 @@ const Feedback = () => {
           </Stack>
         </CardContent>
       </Card>
+      </Box>
       <Footer/>
     </Box>
   );

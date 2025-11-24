@@ -3,7 +3,7 @@ import Footer from '../components/Footer';
 
 const Home = () => {
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
       <Box sx={{ flexGrow: 1 }}>
         <Typography variant="h3" sx={{ color: '#fff', mb: 3, fontWeight: 600 }}>
           Welcome to Link-Up

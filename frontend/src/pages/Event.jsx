@@ -33,15 +33,16 @@ const Event = () => {
   ];
 
   return (
-    <Box>
-      <Typography variant="h3" sx={{ color: '#fff', mb: 3, fontWeight: 600 }}>
-        Upcoming Events
-      </Typography>
-      <Typography variant="body1" sx={{ color: '#8e8ea0', mb: 4 }}>
-        View and manage your upcoming events and activities
-      </Typography>
+    <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+      <Box sx={{ flexGrow: 1 }}>
+        <Typography variant="h3" sx={{ color: '#fff', mb: 3, fontWeight: 600 }}>
+          Upcoming Events
+        </Typography>
+        <Typography variant="body1" sx={{ color: '#8e8ea0', mb: 4 }}>
+          View and manage your upcoming events and activities
+        </Typography>
 
-      <Stack spacing={3}>
+        <Stack spacing={3}>
         {upcomingEvents.map((event) => (
           <Card
             key={event.id}
@@ -97,6 +98,7 @@ const Event = () => {
           </Card>
         ))}
       </Stack>
+      </Box>
       <Footer />
     </Box>
   );
