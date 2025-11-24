@@ -58,7 +58,7 @@ const Navbar = () => {
         "& .MuiDrawer-paper": {
           width: drawerWidth,
           boxSizing: "border-box",
-          bgcolor: "#0f0f1e",
+          bgcolor: "#edede9",
           color: "#fff",
           border: "none",
         },
@@ -101,7 +101,8 @@ const Navbar = () => {
               sx={{
                 fontWeight: 600,
                 fontSize: "1.1rem",
-                color: "#fff",
+                color: "black",
+                textAlign: 'left',
               }}
             >
               Link-Up
@@ -109,7 +110,7 @@ const Navbar = () => {
             <Typography
               variant="body2"
               sx={{
-                color: "#8e8ea0",
+                color: "black",
                 fontSize: "0.85rem",
               }}
             >
@@ -152,7 +153,7 @@ const Navbar = () => {
           >
             <ListItemIcon
               sx={{
-                color: isSelected(item.path) ? "#fff" : "#8e8ea0",
+                color: isSelected(item.path) ? "#fff" : "black",
                 minWidth: 40,
               }}
             >
@@ -163,7 +164,7 @@ const Navbar = () => {
               primaryTypographyProps={{
                 fontSize: "0.95rem",
                 fontWeight: isSelected(item.path) ? 600 : 400,
-                color: isSelected(item.path) ? "#fff" : "#b0b0c0",
+                color: isSelected(item.path) ? "#fff" : "black",
               }}
             />
           </ListItemButton>
@@ -192,7 +193,7 @@ const Navbar = () => {
             >
               <ListItemIcon
                 sx={{
-                  color: isSelected(item.path) ? "#fff" : "#8e8ea0",
+                  color: isSelected(item.path) ? "#fff" : "black",
                   minWidth: 40,
                 }}
               >
@@ -203,7 +204,7 @@ const Navbar = () => {
                 primaryTypographyProps={{
                   fontSize: "0.95rem",
                   fontWeight: isSelected(item.path) ? 600 : 400,
-                  color: isSelected(item.path) ? "#fff" : "#b0b0c0",
+                  color: isSelected(item.path) ? "#fff" : "black",
                 }}
               />
             </ListItemButton>
