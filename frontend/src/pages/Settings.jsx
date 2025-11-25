@@ -1,7 +1,10 @@
 import { Box, Typography, Card, CardContent, Stack, Switch, FormControlLabel } from '@mui/material';
 import Footer from '../components/Footer';
+import { useTheme } from '../context/ThemeContext';
 
 const Settings = () => {
+  const { isDark, toggleTheme } = useTheme();
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
       <Box sx={{ flexGrow: 1 }}>
@@ -13,6 +16,29 @@ const Settings = () => {
         </Typography>
 
         <Stack spacing={3} sx={{ maxWidth: 600 }}>
+        {/* Appearance Settings */}
+        <Card
+          sx={{
+            bgcolor: '#2a2a3e',
+            border: '1px solid #3a3a4e',
+            borderRadius: 2,
+          }}
+        >
+          <CardContent>
+            <Typography variant="h6" sx={{ color: '#fff', mb: 2, fontWeight: 600 }}>
+              Appearance
+            </Typography>
+            <Stack spacing={2}>
+              <FormControlLabel
+                control={<Switch checked={isDark} onChange={toggleTheme} />}
+                label="Dark Mode"
+                sx={{ color: '#b0b0c0' }}
+              />
+            </Stack>
+          </CardContent>
+        </Card>
+
+        {/* Notifications Settings */}
         <Card
           sx={{
             bgcolor: '#2a2a3e',
@@ -44,6 +70,7 @@ const Settings = () => {
           </CardContent>
         </Card>
 
+        {/* Privacy Settings */}
         <Card
           sx={{
             bgcolor: '#2a2a3e',
