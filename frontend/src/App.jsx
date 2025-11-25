@@ -28,10 +28,8 @@ function App() {
           component="main"
           sx={{
             flexGrow: 1,
-            bgcolor: '#1a1a2e',
-            px: 8,
-            pt: 0,
-            pb: 8,
+            bgcolor: '#white',
+            p: 8,
             display: 'flex',
             flexDirection: 'column',
             width: '100%',

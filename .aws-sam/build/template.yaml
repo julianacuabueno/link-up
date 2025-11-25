@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Small Express app deployed with AWS SAM (Lambda + HTTP API)
+Globals:
+  Function:
+    Runtime: nodejs20.x
+    Timeout: 20
+    MemorySize: 512
+    Architectures:
+    - x86_64
+Resources:
+  ExpressHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins:
+        - '*'
+        AllowMethods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - OPTIONS
+        AllowHeaders:
+        - '*'
+  ExpressFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ExpressFunction
+      Handler: lambda.handler
+      Description: Express app behind HTTP API
+      Events:
+        ProxyApi:
+          Type: HttpApi
+          Properties:
+            ApiId:
+              Ref: ExpressHttpApi
+            Path: /{proxy+}
+            Method: ANY
+    Metadata:
+      SamResourceId: ExpressFunction
+Outputs:
+  ApiBaseUrl:
+    Description: Base URL for the Express HTTP API
+    Value:
+      Fn::Sub: https://${ExpressHttpApi}.execute-api.${AWS::Region}.amazonaws.com
+  ExpressFunctionArn:
+    Description: ARN of the Lambda function running Express
+    Value:
+      Fn::GetAtt:
+      - ExpressFunction
+      - Arn

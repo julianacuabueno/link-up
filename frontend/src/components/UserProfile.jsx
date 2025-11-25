@@ -56,9 +56,10 @@ const UserProfile = () => {
           <Typography
             variant="body1"
             sx={{
-              color: "#fff",
+              color: 'black',
               fontWeight: 500,
-              fontSize: "0.95rem",
+              fontSize: '0.95rem',
+              textAlign: 'left',
             }}
           >
             UserName
