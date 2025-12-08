@@ -9,7 +9,10 @@
   "dependencies": {
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
+    "dotenv": "^17.2.3",
     "express": "~4.16.1",
+    "google-auth-library": "^10.5.0",
+    "googleapis": "^167.0.0",
     "hbs": "~4.0.4",
     "http-errors": "~1.6.3",
     "morgan": "~1.9.1",

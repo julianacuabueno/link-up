@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -9,12 +10,17 @@ import {
   Stack,
   Avatar,
   Alert,
+  CircularProgress,
+  Chip,
 } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
+import GoogleIcon from '@mui/icons-material/Google';
+import LinkOffIcon from '@mui/icons-material/LinkOff';
 import Footer from '../components/Footer';
 
 const AccountSettings = () => {
+  const [searchParams] = useSearchParams();
   const [formData, setFormData] = useState({
     firstName: 'User',
     lastName: 'Name',
@@ -31,6 +37,84 @@ const AccountSettings = () => {
   });
 
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [googleUser, setGoogleUser] = useState(null);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [authMessage, setAuthMessage] = useState(null);
+
+  // Check for OAuth callback result
+  useEffect(() => {
+    const authResult = searchParams.get('auth');
+    const email = searchParams.get('email');
+
+    if (authResult === 'success' && email) {
+      localStorage.setItem('userEmail', email);
+      setAuthMessage({ type: 'success', text: 'Successfully connected to Google Calendar!' });
+      checkGoogleAuth(email);
+      // Clean up URL
+      window.history.replaceState({}, '', '/account-settings');
+    } else if (authResult === 'error') {
+      setAuthMessage({ type: 'error', text: 'Failed to connect to Google Calendar. Please try again.' });
+      window.history.replaceState({}, '', '/account-settings');
+    } else {
+      // Check if already authenticated
+      const storedEmail = localStorage.getItem('userEmail');
+      if (storedEmail) {
+        checkGoogleAuth(storedEmail);
+      }
+    }
+  }, [searchParams]);
+
+  const checkGoogleAuth = async (email) => {
+    try {
+      const response = await fetch(`/api/auth/status?email=${encodeURIComponent(email)}`);
+      const data = await response.json();
+
+      if (data.success && data.authenticated) {
+        setGoogleUser(data.user);
+      }
+    } catch (err) {
+      console.error('Error checking auth status:', err);
+    }
+  };
+
+  const handleGoogleConnect = async () => {
+    setGoogleLoading(true);
+    try {
+      const response = await fetch('/api/auth/google');
+      const data = await response.json();
+
+      if (data.success && data.authUrl) {
+        // Redirect to Google OAuth
+        window.location.href = data.authUrl;
+      } else {
+        setAuthMessage({ type: 'error', text: 'Failed to start Google authentication' });
+      }
+    } catch (err) {
+      console.error('Error connecting to Google:', err);
+      setAuthMessage({ type: 'error', text: 'Failed to connect to Google' });
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
+  const handleGoogleDisconnect = async () => {
+    const email = localStorage.getItem('userEmail');
+
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+
+      localStorage.removeItem('userEmail');
+      setGoogleUser(null);
+      setAuthMessage({ type: 'success', text: 'Disconnected from Google Calendar' });
+    } catch (err) {
+      console.error('Error disconnecting:', err);
+      setAuthMessage({ type: 'error', text: 'Failed to disconnect' });
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -49,7 +133,6 @@ const AccountSettings = () => {
   };
 
   const handleSave = () => {
-    // TODO: Add API call to save settings
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 3000);
   };
@@ -99,6 +182,91 @@ const AccountSettings = () => {
           </Alert>
         )}
 
+        {authMessage && (
+          <Alert severity={authMessage.type} sx={{ mb: 3, maxWidth: 700 }} onClose={() => setAuthMessage(null)}>
+            {authMessage.text}
+          </Alert>
+        )}
+
+        {/* Google Calendar Integration Section */}
+        <Card
+          sx={{
+            bgcolor: '#2a2a3e',
+            border: '1px solid #3a3a4e',
+            borderRadius: 2,
+            mb: 3,
+            maxWidth: 700,
+          }}
+        >
+          <CardContent>
+            <Typography variant="h6" sx={{ color: '#fff', mb: 2, fontWeight: 600 }}>
+              Google Calendar Integration
+            </Typography>
+            <Typography variant="body2" sx={{ color: '#8e8ea0', mb: 3 }}>
+              Connect your Google account to sync events with Google Calendar
+            </Typography>
+
+            {googleUser ? (
+              <Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                  <Avatar
+                    src={googleUser.picture}
+                    alt={googleUser.name}
+                    sx={{ width: 48, height: 48 }}
+                  />
+                  <Box>
+                    <Typography sx={{ color: '#fff', fontWeight: 600 }}>
+                      {googleUser.name}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: '#8e8ea0' }}>
+                      {googleUser.email}
+                    </Typography>
+                  </Box>
+                  <Chip
+                    label="Connected"
+                    size="small"
+                    sx={{ bgcolor: '#4caf50', color: '#fff', ml: 'auto' }}
+                  />
+                </Box>
+                <Button
+                  variant="outlined"
+                  startIcon={<LinkOffIcon />}
+                  onClick={handleGoogleDisconnect}
+                  sx={{
+                    borderColor: '#d32f2f',
+                    color: '#d32f2f',
+                    textTransform: 'none',
+                    '&:hover': {
+                      borderColor: '#f44336',
+                      bgcolor: 'rgba(211, 47, 47, 0.1)',
+                    },
+                  }}
+                >
+                  Disconnect Google Account
+                </Button>
+              </Box>
+            ) : (
+              <Button
+                variant="contained"
+                startIcon={googleLoading ? <CircularProgress size={20} color="inherit" /> : <GoogleIcon />}
+                onClick={handleGoogleConnect}
+                disabled={googleLoading}
+                sx={{
+                  bgcolor: '#4285f4',
+                  color: '#fff',
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  '&:hover': {
+                    bgcolor: '#3367d6',
+                  },
+                }}
+              >
+                {googleLoading ? 'Connecting...' : 'Connect with Google'}
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Profile Picture Section */}
         <Card
           sx={{
@@ -115,6 +283,7 @@ const AccountSettings = () => {
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
               <Avatar
+                src={googleUser?.picture}
                 sx={{
                   width: 80,
                   height: 80,
@@ -122,7 +291,7 @@ const AccountSettings = () => {
                   fontSize: '2rem',
                 }}
               >
-                U
+                {googleUser?.name?.[0] || 'U'}
               </Avatar>
               <Box>
                 <Button

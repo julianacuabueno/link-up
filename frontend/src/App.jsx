@@ -15,9 +15,9 @@ import './App.css'
 
 function App() {
   useEffect(() => {
-    fetch("/api/test-get")
-      .then(response => response.json())
-      .then(json => console.log(json));
+    fetch("https://sfnn09foxd.execute-api.us-west-2.amazonaws.com/api/hello")
+      .then((response) => response.json())
+      .then((json) => console.log(json));
   }, []);
 
   return (
