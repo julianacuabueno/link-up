@@ -97,7 +97,7 @@ const UserProfile = () => {
           },
         }}
       >
-        <MenuItem
+        {/* <MenuItem
           onClick={() => {
             handleClose();
             handleMenuClick('/profile');
@@ -105,7 +105,7 @@ const UserProfile = () => {
           sx={{ color: "#fff" }}
         >
           Profile
-        </MenuItem>
+        </MenuItem> */}
         <MenuItem
           onClick={() => {
             handleClose();
@@ -115,7 +115,15 @@ const UserProfile = () => {
         >
           Account Settings
         </MenuItem>
-        <MenuItem onClick={handleClose} sx={{ color: "#fff" }}>
+        <MenuItem
+          onClick={() => {
+            handleClose();
+            localStorage.removeItem('userEmail');
+            localStorage.removeItem('isLoggedIn');
+            navigate('/login');
+          }}
+          sx={{ color: "#fff" }}
+        >
           Logout
         </MenuItem>
       </Menu>
