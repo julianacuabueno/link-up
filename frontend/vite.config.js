@@ -6,7 +6,16 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/api': 'http://localhost:3000', // Proxy API requests to your backend
+      '/api': {
+        target: 'https://guno6rd8a7.execute-api.us-west-2.amazonaws.com',
+        changeOrigin: true,
+        secure: true,
+      },
+      '/users': {
+        target: 'https://guno6rd8a7.execute-api.us-west-2.amazonaws.com',
+        changeOrigin: true,
+        secure: true,
+      },
     },
   },
 })
