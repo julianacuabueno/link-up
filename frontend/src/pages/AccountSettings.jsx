@@ -169,7 +169,7 @@ const AccountSettings = () => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
       <Box sx={{ flexGrow: 1 }}>
-        <Typography variant="h3" sx={{ color: '#fff', mb: 3, fontWeight: 600 }}>
+        <Typography variant="h3" sx={{ color: 'black', mb: 3, fontWeight: 600 }}>
           Account Settings
         </Typography>
         <Typography variant="body1" sx={{ color: '#8e8ea0', mb: 4 }}>

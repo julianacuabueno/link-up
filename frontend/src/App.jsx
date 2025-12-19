@@ -4,6 +4,8 @@ import { Box } from '@mui/material'
 import Navbar from './components/Navbar'
 import Home from './pages/Home'
 import Event from './pages/Event'
+import EventDetail from './pages/EventDetail'
+import AcceptInvite from './pages/AcceptInvite'
 import Create from './pages/Create'
 import Settings from './pages/Settings'
 import About from './pages/About'
@@ -16,12 +18,23 @@ import './App.css'
 const AppLayout = () => {
   const location = useLocation();
   const isLoginPage = location.pathname === '/login';
+  const isInvitePage = location.pathname.startsWith('/invite/');
 
   if (isLoginPage) {
     return (
       <Routes>
         <Route path="/login" element={<Login />} />
       </Routes>
+    );
+  }
+
+  if (isInvitePage) {
+    return (
+      <Box sx={{ minHeight: '100vh', bgcolor: '#f7f9fa', p: 4 }}>
+        <Routes>
+          <Route path="/invite/:token" element={<AcceptInvite />} />
+        </Routes>
+      </Box>
     );
   }
 
@@ -32,16 +45,20 @@ const AppLayout = () => {
         component="main"
         sx={{
           flexGrow: 1,
-          bgcolor: '#white',
+          bgcolor: 'white',
           p: 8,
           display: 'flex',
           flexDirection: 'column',
+          alignItems: 'center',
           width: '100%',
+          maxWidth: 1280,
+          mx: 'auto',
         }}
       >
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/events" element={<Event />} />
+          <Route path="/events/:id" element={<EventDetail />} />
           <Route path="/create" element={<Create />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/about" element={<About />} />

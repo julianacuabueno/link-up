@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Box, Typography, Card, CardContent, TextField, Button, Stack, Alert, Snackbar } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import Footer from '../components/Footer';
+import InviteDialog from '../components/InviteDialog';
 
 const Create = () => {
   const navigate = useNavigate();
@@ -15,6 +16,8 @@ const Create = () => {
   });
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [createdEvent, setCreatedEvent] = useState(null);
+  const [inviteOpen, setInviteOpen] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -50,10 +53,15 @@ const Create = () => {
 
       if (data.success) {
         setSnackbar({ open: true, message: 'Event created successfully!', severity: 'success' });
+        // Store created event info and show invite dialog
+        setCreatedEvent({
+          id: data.data.id,
+          title: formData.title,
+          share_token: data.data.share_token
+        });
+        setInviteOpen(true);
         // Reset form
         setFormData({ title: '', date: '', time: '', location: '', description: '' });
-        // Navigate to events page after short delay
-        setTimeout(() => navigate('/events'), 1500);
       } else {
         setSnackbar({ open: true, message: data.message || 'Failed to create event', severity: 'error' });
       }
@@ -200,6 +208,19 @@ const Create = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
+
+      {createdEvent && (
+        <InviteDialog
+          open={inviteOpen}
+          onClose={() => {
+            setInviteOpen(false);
+            navigate(`/events/${createdEvent.id}`);
+          }}
+          eventId={createdEvent.id}
+          eventTitle={createdEvent.title}
+          shareToken={createdEvent.share_token}
+        />
+      )}
 
       <Footer />
     </Box>

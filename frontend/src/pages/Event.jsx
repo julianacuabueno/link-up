@@ -1,19 +1,34 @@
 import { useState, useEffect } from 'react';
-import { Box, Typography, Card, CardContent, Stack, Chip, CircularProgress, Button } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { Box, Typography, Card, CardContent, Stack, Chip, CircularProgress, Button, IconButton, Tooltip } from '@mui/material';
 import EventIcon from '@mui/icons-material/Event';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import SyncIcon from '@mui/icons-material/Sync';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ShareIcon from '@mui/icons-material/Share';
+import PeopleIcon from '@mui/icons-material/People';
 import Footer from '../components/Footer';
 
 const Event = () => {
+  const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState(null);
 
   const userEmail = localStorage.getItem('userEmail');
+
+  const handleShare = async (event, e) => {
+    e.stopPropagation();
+    const shareUrl = `${window.location.origin}/invite/${event.share_token}`;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      alert('Share link copied to clipboard!');
+    } catch (err) {
+      prompt('Copy this link:', shareUrl);
+    }
+  };
 
   const fetchEvents = async (sync = false) => {
     try {
@@ -152,11 +167,13 @@ const Event = () => {
             {events.map((event) => (
               <Card
                 key={event.id}
+                onClick={() => navigate(`/events/${event.id}`)}
                 sx={{
                   bgcolor: '#2a2a3e',
                   border: '1px solid #3a3a4e',
                   borderRadius: 2,
                   transition: 'all 0.2s',
+                  cursor: 'pointer',
                   '&:hover': {
                     borderColor: '#4a90e2',
                     transform: 'translateY(-2px)',
@@ -177,17 +194,31 @@ const Event = () => {
                         />
                       )}
                       <Chip
+                        icon={<PeopleIcon sx={{ fontSize: 14, color: '#fff !important' }} />}
                         label={`${event.attendees || 0} attending`}
                         size="small"
                         sx={{ bgcolor: '#4a90e2', color: '#fff' }}
                       />
-                      <Button
-                        size="small"
-                        onClick={() => handleDelete(event.id)}
-                        sx={{ minWidth: 'auto', color: '#f44336' }}
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </Button>
+                      {event.share_token && (
+                        <Tooltip title="Copy share link">
+                          <IconButton
+                            size="small"
+                            onClick={(e) => handleShare(event, e)}
+                            sx={{ color: '#8e8ea0', '&:hover': { color: '#4a90e2' } }}
+                          >
+                            <ShareIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      )}
+                      <Tooltip title="Delete event">
+                        <IconButton
+                          size="small"
+                          onClick={(e) => { e.stopPropagation(); handleDelete(event.id); }}
+                          sx={{ color: '#8e8ea0', '&:hover': { color: '#f44336' } }}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
                     </Box>
                   </Box>
 
