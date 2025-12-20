@@ -1,5 +1,12 @@
 import { Router } from 'express';
 import { google } from 'googleapis';
+import {
+  docClient,
+  PutCommand,
+  GetCommand,
+  DeleteCommand,
+  TABLES
+} from '../db/dynamodb.js';
 
 const router = Router();
 
@@ -19,8 +26,34 @@ const SCOPES = [
   'https://www.googleapis.com/auth/userinfo.profile'
 ];
 
-// In-memory token storage (in production, use database)
-const tokenStore = new Map();
+// Helper functions for DynamoDB token storage
+async function storeTokens(email, tokens, userInfo) {
+  await docClient.send(new PutCommand({
+    TableName: TABLES.AUTH_TOKENS,
+    Item: {
+      email,
+      tokens,
+      userInfo,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }
+  }));
+}
+
+async function getTokens(email) {
+  const result = await docClient.send(new GetCommand({
+    TableName: TABLES.AUTH_TOKENS,
+    Key: { email }
+  }));
+  return result.Item || null;
+}
+
+async function deleteTokens(email) {
+  await docClient.send(new DeleteCommand({
+    TableName: TABLES.AUTH_TOKENS,
+    Key: { email }
+  }));
+}
 
 // GET /api/auth/google - Start OAuth flow
 router.get('/google', (req, res) => {
@@ -55,12 +88,9 @@ router.get('/google/callback', async (req, res) => {
     const oauth2 = google.oauth2({ version: 'v2', auth: oauth2Client });
     const userInfo = await oauth2.userinfo.get();
 
-    // Store tokens with user email as key
+    // Store tokens in DynamoDB
     const userEmail = userInfo.data.email;
-    tokenStore.set(userEmail, {
-      tokens,
-      userInfo: userInfo.data
-    });
+    await storeTokens(userEmail, tokens, userInfo.data);
 
     // Redirect to frontend with success
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
@@ -73,7 +103,7 @@ router.get('/google/callback', async (req, res) => {
 });
 
 // GET /api/auth/status - Check if user is authenticated
-router.get('/status', (req, res) => {
+router.get('/status', async (req, res) => {
   const email = req.query.email;
 
   if (!email) {
@@ -83,32 +113,48 @@ router.get('/status', (req, res) => {
     });
   }
 
-  const userData = tokenStore.get(email);
+  try {
+    const userData = await getTokens(email);
 
-  res.json({
-    success: true,
-    authenticated: !!userData,
-    user: userData ? userData.userInfo : null
-  });
+    res.json({
+      success: true,
+      authenticated: !!userData,
+      user: userData ? userData.userInfo : null
+    });
+  } catch (error) {
+    console.error('Error checking auth status:', error);
+    res.json({
+      success: true,
+      authenticated: false
+    });
+  }
 });
 
 // POST /api/auth/logout - Clear user tokens
-router.post('/logout', (req, res) => {
+router.post('/logout', async (req, res) => {
   const { email } = req.body;
 
-  if (email) {
-    tokenStore.delete(email);
-  }
+  try {
+    if (email) {
+      await deleteTokens(email);
+    }
 
-  res.json({
-    success: true,
-    message: 'Logged out successfully'
-  });
+    res.json({
+      success: true,
+      message: 'Logged out successfully'
+    });
+  } catch (error) {
+    console.error('Error during logout:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error during logout'
+    });
+  }
 });
 
 // Helper function to get authenticated client for a user
-export function getAuthenticatedClient(email) {
-  const userData = tokenStore.get(email);
+export async function getAuthenticatedClient(email) {
+  const userData = await getTokens(email);
 
   if (!userData) {
     return null;
@@ -117,12 +163,12 @@ export function getAuthenticatedClient(email) {
   const client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
-    process.env.GOOGLE_REDIRECT_URI || 'http://localhost:3000/api/auth/google/callback'
+    process.env.GOOGLE_REDIRECT_URI ||
+      "https://guno6rd8a7.execute-api.us-west-2.amazonaws.com/api/auth/google/callback"
   );
 
   client.setCredentials(userData.tokens);
   return client;
 }
 
-export { tokenStore };
 export default router;

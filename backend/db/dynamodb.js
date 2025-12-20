@@ -18,7 +18,8 @@ const docClient = DynamoDBDocumentClient.from(client);
 // Table names from environment variables (set by SAM template)
 const TABLES = {
   USERS: process.env.USERS_TABLE || 'link-up-users',
-  EVENTS: process.env.EVENTS_TABLE || 'link-up-events'
+  EVENTS: process.env.EVENTS_TABLE || 'link-up-events',
+  AUTH_TOKENS: process.env.AUTH_TOKENS_TABLE || 'link-up-auth-tokens'
 };
 
 export {

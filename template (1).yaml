@@ -1,11 +1,11 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: Small Express app deployed with AWS SAM (Lambda + HTTP API)
 
 Globals:
   Function:
     Runtime: nodejs22.x
-    Timeout: 20           # seconds
+    Timeout: 20 # seconds
     MemorySize: 512
     Architectures:
       - x86_64
@@ -30,7 +30,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: backend/
-      Handler: lambda.handler    # lambda.js exports.handler
+      Handler: lambda.handler # lambda.js exports.handler
       Description: Express app behind HTTP API
       Environment:
         Variables:
@@ -39,7 +39,7 @@ Resources:
           GOOGLE_CLIENT_ID: "{{resolve:ssm:/link-up/google-client-id}}"
           GOOGLE_CLIENT_SECRET: "{{resolve:ssm:/link-up/google-client-secret}}"
           GOOGLE_REDIRECT_URI: !Sub "https://${ExpressHttpApi}.execute-api.${AWS::Region}.amazonaws.com/api/auth/google/callback"
-          FRONTEND_URL: !Sub "https://${CloudFrontDistribution.DomainName}"
+          FRONTEND_URL: !Sub "http://localhost:5173"
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref UsersTable
@@ -111,18 +111,17 @@ Resources:
     Properties:
       Bucket: !Ref StaticWebsiteBucket
       PolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
           - Sid: AllowCloudFrontServicePrincipalGetObject
             Effect: Allow
             Principal:
               Service: cloudfront.amazonaws.com
             Action: s3:GetObject
-            Resource:
-              !Join
-                - ''
-                - - !GetAtt StaticWebsiteBucket.Arn
-                  - '/*'
+            Resource: !Join
+              - ""
+              - - !GetAtt StaticWebsiteBucket.Arn
+                - "/*"
             Condition:
               StringEquals:
                 AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}"
@@ -149,7 +148,7 @@ Resources:
         Origins:
           - Id: S3Origin
             DomainName: !GetAtt StaticWebsiteBucket.RegionalDomainName
-            S3OriginConfig: {}     # required for S3 origins
+            S3OriginConfig: {} # required for S3 origins
             OriginAccessControlId: !Ref CloudFrontOAC
 
         DefaultCacheBehavior:
@@ -160,7 +159,7 @@ Resources:
           # Managed "CachingDisabled" policy (no caching: all TTLs = 0)
           # https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html
           CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
-          OriginRequestPolicyId: 88a5eaf4-2fd4-4709-b370-b4c650ea3fcf  # AWS managed CORS-S3Origin
+          OriginRequestPolicyId: 88a5eaf4-2fd4-4709-b370-b4c650ea3fcf # AWS managed CORS-S3Origin
 
         CustomErrorResponses:
           - ErrorCode: 403

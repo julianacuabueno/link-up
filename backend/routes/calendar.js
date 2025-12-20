@@ -22,7 +22,7 @@ router.get('/events', async (req, res) => {
   try {
     // If sync requested and user is authenticated, fetch from Google Calendar
     if (sync === 'true' && email) {
-      const authClient = getAuthenticatedClient(email);
+      const authClient = await getAuthenticatedClient(email);
 
       if (authClient) {
         const calendar = google.calendar({ version: 'v3', auth: authClient });
@@ -157,7 +157,7 @@ router.post('/events', async (req, res) => {
 
     // If user is authenticated, create event in Google Calendar
     if (email) {
-      const authClient = getAuthenticatedClient(email);
+      const authClient = await getAuthenticatedClient(email);
 
       if (authClient) {
         const calendar = google.calendar({ version: 'v3', auth: authClient });
@@ -295,7 +295,7 @@ router.put('/events/:id', async (req, res) => {
 
     // Update in Google Calendar if authenticated and has Google event ID
     if (email && existingEvent.google_event_id) {
-      const authClient = getAuthenticatedClient(email);
+      const authClient = await getAuthenticatedClient(email);
 
       if (authClient) {
         const calendar = google.calendar({ version: 'v3', auth: authClient });
@@ -385,7 +385,7 @@ router.delete('/events/:id', async (req, res) => {
 
     // Delete from Google Calendar if authenticated and has Google event ID
     if (email && event.google_event_id) {
-      const authClient = getAuthenticatedClient(email);
+      const authClient = await getAuthenticatedClient(email);
 
       if (authClient) {
         const calendar = google.calendar({ version: 'v3', auth: authClient });
