@@ -27,9 +27,14 @@ router.get('/events', async (req, res) => {
       if (authClient) {
         const calendar = google.calendar({ version: 'v3', auth: authClient });
 
+        // Get events for the next 2 weeks only
+        const timeMax = new Date();
+        timeMax.setDate(timeMax.getDate() + 14);
+
         const response = await calendar.events.list({
           calendarId: 'primary',
           timeMin: new Date().toISOString(),
+          timeMax: timeMax.toISOString(),
           maxResults: 50,
           singleEvents: true,
           orderBy: 'startTime'
@@ -90,9 +95,11 @@ router.get('/events', async (req, res) => {
       }
     }
 
-    // Fetch events from DynamoDB
+    // Fetch events from DynamoDB (next 2 weeks only)
     let result;
-    const now = new Date().toISOString();
+    const now = new Date();
+    const twoWeeksFromNow = new Date();
+    twoWeeksFromNow.setDate(twoWeeksFromNow.getDate() + 14);
 
     if (email) {
       // Query by user_email using GSI
@@ -100,18 +107,22 @@ router.get('/events', async (req, res) => {
         TableName: TABLES.EVENTS,
         IndexName: 'user_email-index',
         KeyConditionExpression: 'user_email = :email',
-        FilterExpression: 'start_datetime >= :now',
+        FilterExpression: 'start_datetime >= :now AND start_datetime <= :maxDate',
         ExpressionAttributeValues: {
           ':email': email,
-          ':now': now
+          ':now': now.toISOString(),
+          ':maxDate': twoWeeksFromNow.toISOString()
         }
       }));
     } else {
-      // Scan all events (with filter for future events)
+      // Scan all events (with filter for next 2 weeks)
       result = await docClient.send(new ScanCommand({
         TableName: TABLES.EVENTS,
-        FilterExpression: 'start_datetime >= :now',
-        ExpressionAttributeValues: { ':now': now }
+        FilterExpression: 'start_datetime >= :now AND start_datetime <= :maxDate',
+        ExpressionAttributeValues: {
+          ':now': now.toISOString(),
+          ':maxDate': twoWeeksFromNow.toISOString()
+        }
       }));
     }
 
@@ -137,7 +148,7 @@ router.get('/events', async (req, res) => {
 
 // POST /api/calendar/events - Create a new event
 router.post('/events', async (req, res) => {
-  const { title, description, location, date, time, endTime, email } = req.body;
+  const { title, description, location, date, time, endTime, email, timezone } = req.body;
 
   if (!title || !date || !time) {
     return res.status(400).json({
@@ -146,8 +157,11 @@ router.post('/events', async (req, res) => {
     });
   }
 
+  // Use provided timezone or default to UTC
+  const userTimezone = timezone || 'UTC';
+
   try {
-    // Parse date and time
+    // Parse date and time in user's timezone
     const startDateTime = new Date(`${date}T${time}`);
     const endDateTime = endTime
       ? new Date(`${date}T${endTime}`)
@@ -170,11 +184,11 @@ router.post('/events', async (req, res) => {
             location: location || '',
             start: {
               dateTime: startDateTime.toISOString(),
-              timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+              timeZone: userTimezone
             },
             end: {
               dateTime: endDateTime.toISOString(),
-              timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+              timeZone: userTimezone
             }
           }
         });

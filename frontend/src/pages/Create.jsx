@@ -35,6 +35,8 @@ const Create = () => {
       // Get user email from localStorage if logged in with Google
       const userEmail = localStorage.getItem('userEmail');
 
+      console.log('Creating event with data:', { ...formData, email: userEmail });
+
       const response = await fetch('/api/calendar/events', {
         method: 'POST',
         headers: {
@@ -42,7 +44,8 @@ const Create = () => {
         },
         body: JSON.stringify({
           ...formData,
-          email: userEmail
+          email: userEmail,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
         })
       });
 

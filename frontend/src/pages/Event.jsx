@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Box, Typography, Card, CardContent, Stack, Chip, CircularProgress, Button } from '@mui/material';
 import EventIcon from '@mui/icons-material/Event';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -12,6 +13,7 @@ const Event = () => {
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState(null);
+  const location = useLocation();
 
   const userEmail = localStorage.getItem('userEmail');
 
@@ -24,7 +26,9 @@ const Event = () => {
       if (userEmail) params.append('email', userEmail);
       if (sync) params.append('sync', 'true');
 
-      const response = await fetch(`/api/calendar/events?${params}`);
+      const response = await fetch(`/api/calendar/events?${params}`, {
+        cache: 'no-store'
+      });
       const data = await response.json();
 
       if (data.success) {
@@ -66,7 +70,7 @@ const Event = () => {
 
   useEffect(() => {
     fetchEvents();
-  }, []);
+  }, [location.key]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
