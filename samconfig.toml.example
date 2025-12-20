@@ -1,0 +1,20 @@
+# SAM Configuration File
+# Copy this file to samconfig.toml and fill in your values
+# DO NOT commit samconfig.toml with real credentials
+
+version = 0.1
+
+[default.deploy.parameters]
+stack_name = "link-up-2"
+resolve_s3 = true
+s3_prefix = "link-up-2"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+image_repositories = []
+
+# Add your Google OAuth credentials here
+# Get these from your .env file or https://console.cloud.google.com/apis/credentials
+parameter_overrides = "GoogleClientId=YOUR_GOOGLE_CLIENT_ID GoogleClientSecret=YOUR_GOOGLE_CLIENT_SECRET"
+
+[default.global.parameters]
+region = "us-west-2"

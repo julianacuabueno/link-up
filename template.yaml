@@ -2,6 +2,15 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Small Express app deployed with AWS SAM (Lambda + HTTP API)
 
+Parameters:
+  GoogleClientId:
+    Type: String
+    Description: Google OAuth Client ID
+  GoogleClientSecret:
+    Type: String
+    Description: Google OAuth Client Secret
+    NoEcho: true
+
 Globals:
   Function:
     Runtime: nodejs22.x
@@ -37,8 +46,8 @@ Resources:
           USERS_TABLE: !Ref UsersTable
           EVENTS_TABLE: !Ref EventsTable
           AUTH_TOKENS_TABLE: !Ref AuthTokensTable
-          GOOGLE_CLIENT_ID: "{{resolve:ssm:/link-up/google-client-id}}"
-          GOOGLE_CLIENT_SECRET: "{{resolve:ssm:/link-up/google-client-secret}}"
+          GOOGLE_CLIENT_ID: !Ref GoogleClientId
+          GOOGLE_CLIENT_SECRET: !Ref GoogleClientSecret
           GOOGLE_REDIRECT_URI: "https://guno6rd8a7.execute-api.us-west-2.amazonaws.com/api/auth/google/callback"
           FRONTEND_URL: "http://localhost:5173"
       Policies:
