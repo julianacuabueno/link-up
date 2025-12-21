@@ -1,3 +1,5 @@
+.aws-sam
+
 # Logs
 logs
 *.log

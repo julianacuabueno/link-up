@@ -52,7 +52,7 @@ const oauth2Client = new google.auth.OAuth2(
   secret.GOOGLE_REDIRECT_URI ||
     "https://guno6rd8a7.execute-api.us-west-2.amazonaws.com/api/auth/google/callback"
 );
-console.log(secret.GOOGLE_CLIENT_ID, secret.GOOGLE_CLIENT_SECRET, secret.GOOGLE_REDIRECT_URI);
+
 // Scopes required for Google Calendar
 const SCOPES = [
   

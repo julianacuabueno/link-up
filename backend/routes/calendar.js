@@ -44,7 +44,7 @@ const oauth2Client = new google.auth.OAuth2(
   secret.GOOGLE_CLIENT_ID,
   secret.GOOGLE_CLIENT_SECRET,
   secret.GOOGLE_REDIRECT_URI ||
-    "https://guno6rd8a7.execute-api.us-west-2.amazonaws.com/api/auth/google/callback"
+  "https://guno6rd8a7.execute-api.us-west-2.amazonaws.com/api/auth/google/callback"
 );
 const router = Router();
 
@@ -74,7 +74,6 @@ router.get("/events", async (req, res) => {
         });
 
         const googleEvents = response.data.items || [];
-        console.log("Google Events:", googleEvents);
         // Sync Google events to DynamoDB
         for (const event of googleEvents) {
           const startDateTime = event.start.dateTime || event.start.date;
@@ -372,8 +371,8 @@ router.put("/events/:id", async (req, res) => {
       endDateTime = endTime
         ? new Date(`${date}T${endTime}`).toISOString()
         : new Date(
-            new Date(`${date}T${time}`).getTime() + 60 * 60 * 1000
-          ).toISOString();
+          new Date(`${date}T${time}`).getTime() + 60 * 60 * 1000
+        ).toISOString();
     }
 
     // Update in Google Calendar if authenticated and has Google event ID
