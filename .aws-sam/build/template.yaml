@@ -1,6 +1,14 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Small Express app deployed with AWS SAM (Lambda + HTTP API)
+Parameters:
+  GoogleClientId:
+    Type: String
+    Description: Google OAuth Client ID
+  GoogleClientSecret:
+    Type: String
+    Description: Google OAuth Client Secret
+    NoEcho: true
 Globals:
   Function:
     Runtime: nodejs22.x
@@ -35,10 +43,14 @@ Resources:
             Ref: UsersTable
           EVENTS_TABLE:
             Ref: EventsTable
-          GOOGLE_CLIENT_ID: '{{resolve:ssm:/link-up/google-client-id}}'
-          GOOGLE_CLIENT_SECRET: '{{resolve:ssm:/link-up/google-client-secret}}'
+          AUTH_TOKENS_TABLE:
+            Ref: AuthTokensTable
+          GOOGLE_CLIENT_ID:
+            Ref: GoogleClientId
+          GOOGLE_CLIENT_SECRET:
+            Ref: GoogleClientSecret
           GOOGLE_REDIRECT_URI: https://guno6rd8a7.execute-api.us-west-2.amazonaws.com/api/auth/google/callback
-          FRONTEND_URL: https://dvsrbo9hf5u8u.cloudfront.net
+          FRONTEND_URL: http://localhost:5173
       Policies:
       - DynamoDBCrudPolicy:
           TableName:
@@ -46,6 +58,12 @@ Resources:
       - DynamoDBCrudPolicy:
           TableName:
             Ref: EventsTable
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: AuthTokensTable
+      - AWSSecretsManagerGetSecretValuePolicy:
+          SecretArn:
+            Fn::Sub: arn:${AWS::Partition}:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:GoogleAPI-*
       Events:
         Root:
           Type: HttpApi
@@ -96,6 +114,18 @@ Resources:
           KeyType: HASH
         Projection:
           ProjectionType: ALL
+  AuthTokensTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName:
+        Fn::Sub: ${AWS::StackName}-auth-tokens
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+      - AttributeName: email
+        AttributeType: S
+      KeySchema:
+      - AttributeName: email
+        KeyType: HASH
   StaticWebsiteBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -208,3 +238,7 @@ Outputs:
     Description: Name of the DynamoDB Events table
     Value:
       Ref: EventsTable
+  AuthTokensTableName:
+    Description: Name of the DynamoDB Auth Tokens table
+    Value:
+      Ref: AuthTokensTable

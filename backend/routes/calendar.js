@@ -1,95 +1,135 @@
-import { Router } from 'express';
-import { google } from 'googleapis';
-import { v4 as uuidv4 } from 'uuid';
-import { getAuthenticatedClient } from './auth.js';
+import { Router } from "express";
+import { google } from "googleapis";
+import { v4 as uuidv4 } from "uuid";
+import { getAuthenticatedClient } from "./auth.js";
 import {
   docClient,
   PutCommand,
   GetCommand,
-  QueryCommand,
   ScanCommand,
   DeleteCommand,
   UpdateCommand,
-  TABLES
-} from '../db/dynamodb.js';
+  TABLES,
+} from "../db/dynamodb.js";
 
+import {
+  SecretsManagerClient,
+  GetSecretValueCommand,
+} from "@aws-sdk/client-secrets-manager";
+
+const secret_name = "GoogleAPI";
+
+const client = new SecretsManagerClient({
+  region: "us-west-2",
+});
+
+let response;
+
+try {
+  response = await client.send(
+    new GetSecretValueCommand({
+      SecretId: secret_name,
+      VersionStage: "AWSCURRENT", // VersionStage defaults to AWSCURRENT if unspecified
+    })
+  );
+} catch (error) {
+  // For a list of exceptions thrown, see
+  // https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
+  throw error;
+}
+
+const secret = response.SecretString;
+
+const oauth2Client = new google.auth.OAuth2(
+  secret.GOOGLE_CLIENT_ID,
+  secret.GOOGLE_CLIENT_SECRET,
+  secret.GOOGLE_REDIRECT_URI ||
+    "https://guno6rd8a7.execute-api.us-west-2.amazonaws.com/api/auth/google/callback"
+);
 const router = Router();
 
 // GET /api/calendar/events - Get all events (from DB and optionally sync with Google)
-router.get('/events', async (req, res) => {
+router.get("/events", async (req, res) => {
   const { email, sync } = req.query;
 
   try {
     // If sync requested and user is authenticated, fetch from Google Calendar
-    if (sync === 'true' && email) {
+    if (sync === "true" && email) {
       const authClient = await getAuthenticatedClient(email);
 
       if (authClient) {
-        const calendar = google.calendar({ version: 'v3', auth: authClient });
+        const calendar = google.calendar({ version: "v3", auth: authClient });
 
         // Get events for the next 2 weeks only
         const timeMax = new Date();
         timeMax.setDate(timeMax.getDate() + 14);
 
         const response = await calendar.events.list({
-          calendarId: 'primary',
+          calendarId: "primary",
           timeMin: new Date().toISOString(),
           timeMax: timeMax.toISOString(),
           maxResults: 50,
           singleEvents: true,
-          orderBy: 'startTime'
+          orderBy: "startTime",
         });
 
         const googleEvents = response.data.items || [];
-
+        console.log("Google Events:", googleEvents);
         // Sync Google events to DynamoDB
         for (const event of googleEvents) {
           const startDateTime = event.start.dateTime || event.start.date;
           const endDateTime = event.end.dateTime || event.end.date;
 
           // Check if event already exists by google_event_id
-          const existingResult = await docClient.send(new ScanCommand({
-            TableName: TABLES.EVENTS,
-            FilterExpression: 'google_event_id = :gid',
-            ExpressionAttributeValues: { ':gid': event.id }
-          }));
+          const existingResult = await docClient.send(
+            new ScanCommand({
+              TableName: TABLES.EVENTS,
+              FilterExpression: "google_event_id = :gid",
+              ExpressionAttributeValues: { ":gid": event.id },
+            })
+          );
 
           if (existingResult.Items && existingResult.Items.length > 0) {
             // Update existing event
             const existingEvent = existingResult.Items[0];
-            await docClient.send(new UpdateCommand({
-              TableName: TABLES.EVENTS,
-              Key: { id: existingEvent.id },
-              UpdateExpression: 'SET title = :title, description = :desc, #loc = :loc, start_datetime = :start, end_datetime = :end, attendees = :att, updated_at = :updated',
-              ExpressionAttributeNames: { '#loc': 'location' },
-              ExpressionAttributeValues: {
-                ':title': event.summary || 'Untitled Event',
-                ':desc': event.description || '',
-                ':loc': event.location || '',
-                ':start': new Date(startDateTime).toISOString(),
-                ':end': new Date(endDateTime).toISOString(),
-                ':att': event.attendees?.length || 0,
-                ':updated': new Date().toISOString()
-              }
-            }));
+            await docClient.send(
+              new UpdateCommand({
+                TableName: TABLES.EVENTS,
+                Key: { id: existingEvent.id },
+                UpdateExpression:
+                  "SET title = :title, description = :desc, #loc = :loc, start_datetime = :start, end_datetime = :end, attendees = :att, updated_at = :updated",
+                ExpressionAttributeNames: { "#loc": "location" },
+                ExpressionAttributeValues: {
+                  ":title": event.summary || "Untitled Event",
+                  ":desc": event.description || "",
+                  ":loc": event.location || "",
+                  ":start": new Date(startDateTime).toISOString(),
+                  ":end": new Date(endDateTime).toISOString(),
+                  ":att": event.attendees?.length || 0,
+                  ":updated": new Date().toISOString(),
+                },
+              })
+            );
           } else {
             // Insert new event
-            await docClient.send(new PutCommand({
-              TableName: TABLES.EVENTS,
-              Item: {
-                id: uuidv4(),
-                google_event_id: event.id,
-                title: event.summary || 'Untitled Event',
-                description: event.description || '',
-                location: event.location || '',
-                start_datetime: new Date(startDateTime).toISOString(),
-                end_datetime: new Date(endDateTime).toISOString(),
-                user_email: email,
-                attendees: event.attendees?.length || 0,
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
-              }
-            }));
+            await docClient.send(
+              new PutCommand({
+                TableName: TABLES.EVENTS,
+                Item: {
+                  id: uuidv4(),
+                  google_event_id: event.id,
+                  title: event.summary || "Untitled Event",
+                  description: event.description || "",
+                  location: event.location || "",
+                  start_datetime: new Date(startDateTime).toISOString(),
+                  end_datetime: new Date(endDateTime).toISOString(),
+                  user_email: email,
+                  attendees: event.attendees?.length || 0,
+                  created_at: new Date().toISOString(),
+                  updated_at: new Date().toISOString(),
+                },
+              })
+            );
           }
         }
       }
@@ -101,71 +141,92 @@ router.get('/events', async (req, res) => {
     const twoWeeksFromNow = new Date();
     twoWeeksFromNow.setDate(twoWeeksFromNow.getDate() + 14);
 
-    if (email) {
-      // Query by user_email using GSI
-      result = await docClient.send(new QueryCommand({
+    // Scan all events and filter by user_email (includes 'anonymous' events)
+    // This ensures users see events they created before connecting to Google
+    result = await docClient.send(
+      new ScanCommand({
         TableName: TABLES.EVENTS,
-        IndexName: 'user_email-index',
-        KeyConditionExpression: 'user_email = :email',
-        FilterExpression: 'start_datetime >= :now AND start_datetime <= :maxDate',
+        FilterExpression:
+          "start_datetime >= :now AND start_datetime <= :maxDate AND (user_email = :email OR user_email = :anon)",
         ExpressionAttributeValues: {
-          ':email': email,
-          ':now': now.toISOString(),
-          ':maxDate': twoWeeksFromNow.toISOString()
-        }
-      }));
-    } else {
-      // Scan all events (with filter for next 2 weeks)
-      result = await docClient.send(new ScanCommand({
-        TableName: TABLES.EVENTS,
-        FilterExpression: 'start_datetime >= :now AND start_datetime <= :maxDate',
-        ExpressionAttributeValues: {
-          ':now': now.toISOString(),
-          ':maxDate': twoWeeksFromNow.toISOString()
-        }
-      }));
-    }
+          ":email": email || "anonymous",
+          ":now": now.toISOString(),
+          ":maxDate": twoWeeksFromNow.toISOString(),
+          ":anon": "anonymous",
+        },
+      })
+    );
 
     // Sort by start_datetime
-    const events = (result.Items || []).sort((a, b) =>
-      new Date(a.start_datetime) - new Date(b.start_datetime)
+    const events = (result.Items || []).sort(
+      (a, b) => new Date(a.start_datetime) - new Date(b.start_datetime)
     );
 
     res.json({
       success: true,
       data: events,
-      message: 'Events retrieved successfully'
+      message: "Events retrieved successfully",
     });
   } catch (error) {
-    console.error('Error fetching events:', error);
+    console.error("Error fetching events:", error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching events',
-      error: error.message
+      message: "Error fetching events",
+      error: error.message,
     });
   }
 });
 
 // POST /api/calendar/events - Create a new event
-router.post('/events', async (req, res) => {
-  const { title, description, location, date, time, endTime, email, timezone } = req.body;
+router.post("/events", async (req, res) => {
+  const { title, description, location, date, time, endTime, email, timezone } =
+    req.body;
 
   if (!title || !date || !time) {
     return res.status(400).json({
       success: false,
-      message: 'Title, date, and time are required'
+      message: "Title, date, and time are required",
     });
   }
 
   // Use provided timezone or default to UTC
-  const userTimezone = timezone || 'UTC';
+  const userTimezone = timezone || "UTC";
 
   try {
-    // Parse date and time in user's timezone
-    const startDateTime = new Date(`${date}T${time}`);
-    const endDateTime = endTime
-      ? new Date(`${date}T${endTime}`)
-      : new Date(startDateTime.getTime() + 60 * 60 * 1000); // Default 1 hour duration
+    // Helper to get timezone offset in milliseconds
+    const getTimezoneOffsetMs = (tz) => {
+      try {
+        const now = new Date();
+        const tzDate = new Date(now.toLocaleString("en-US", { timeZone: tz }));
+        const utcDate = new Date(
+          now.toLocaleString("en-US", { timeZone: "UTC" })
+        );
+        return tzDate - utcDate;
+      } catch {
+        return 0;
+      }
+    };
+
+    // Parse the date/time string - this will be interpreted in server's local time
+    const localStartDateTime = new Date(`${date}T${time}:00`);
+    const localEndDateTime = endTime
+      ? new Date(`${date}T${endTime}:00`)
+      : new Date(localStartDateTime.getTime() + 60 * 60 * 1000); // Default 1 hour duration
+
+    // Get the offset difference between server timezone and user timezone
+    const serverOffsetMs = getTimezoneOffsetMs(
+      Intl.DateTimeFormat().resolvedOptions().timeZone
+    );
+    const userOffsetMs = getTimezoneOffsetMs(userTimezone);
+    const offsetDiff = serverOffsetMs - userOffsetMs;
+
+    // Adjust times: convert from "server local interpretation" to "user's intended time in UTC"
+    const adjustedStartDateTime = new Date(
+      localStartDateTime.getTime() + offsetDiff
+    );
+    const adjustedEndDateTime = new Date(
+      localEndDateTime.getTime() + offsetDiff
+    );
 
     let googleEventId = null;
 
@@ -174,23 +235,23 @@ router.post('/events', async (req, res) => {
       const authClient = await getAuthenticatedClient(email);
 
       if (authClient) {
-        const calendar = google.calendar({ version: 'v3', auth: authClient });
+        const calendar = google.calendar({ version: "v3", auth: authClient });
 
         const googleEvent = await calendar.events.insert({
-          calendarId: 'primary',
+          calendarId: "primary",
           requestBody: {
             summary: title,
-            description: description || '',
-            location: location || '',
+            description: description || "",
+            location: location || "",
             start: {
-              dateTime: startDateTime.toISOString(),
-              timeZone: userTimezone
+              dateTime: adjustedStartDateTime.toISOString(),
+              timeZone: userTimezone,
             },
             end: {
-              dateTime: endDateTime.toISOString(),
-              timeZone: userTimezone
-            }
-          }
+              dateTime: adjustedEndDateTime.toISOString(),
+              timeZone: userTimezone,
+            },
+          },
         });
 
         googleEventId = googleEvent.data.id;
@@ -205,92 +266,98 @@ router.post('/events', async (req, res) => {
       id: eventId,
       google_event_id: googleEventId,
       title,
-      description: description || '',
-      location: location || '',
-      start_datetime: startDateTime.toISOString(),
-      end_datetime: endDateTime.toISOString(),
-      user_email: email || 'anonymous',
+      description: description || "",
+      location: location || "",
+      start_datetime: adjustedStartDateTime.toISOString(),
+      end_datetime: adjustedEndDateTime.toISOString(),
+      user_email: email || "anonymous",
       attendees: 0,
       created_at: now,
-      updated_at: now
+      updated_at: now,
     };
 
-    await docClient.send(new PutCommand({
-      TableName: TABLES.EVENTS,
-      Item: eventItem
-    }));
+    await docClient.send(
+      new PutCommand({
+        TableName: TABLES.EVENTS,
+        Item: eventItem,
+      })
+    );
 
     res.json({
       success: true,
-      message: 'Event created successfully',
+      message: "Event created successfully",
       data: {
         id: eventId,
         google_event_id: googleEventId,
         title,
         description,
         location,
-        start_datetime: startDateTime.toISOString(),
-        end_datetime: endDateTime.toISOString()
-      }
+        start_datetime: adjustedStartDateTime.toISOString(),
+        end_datetime: adjustedEndDateTime.toISOString(),
+      },
     });
   } catch (error) {
-    console.error('Error creating event:', error);
+    console.error("Error creating event:", error);
     res.status(500).json({
       success: false,
-      message: 'Error creating event',
-      error: error.message
+      message: "Error creating event",
+      error: error.message,
     });
   }
 });
 
 // GET /api/calendar/events/:id - Get a single event
-router.get('/events/:id', async (req, res) => {
+router.get("/events/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
-    const result = await docClient.send(new GetCommand({
-      TableName: TABLES.EVENTS,
-      Key: { id }
-    }));
+    const result = await docClient.send(
+      new GetCommand({
+        TableName: TABLES.EVENTS,
+        Key: { id },
+      })
+    );
 
     if (!result.Item) {
       return res.status(404).json({
         success: false,
-        message: 'Event not found'
+        message: "Event not found",
       });
     }
 
     res.json({
       success: true,
       data: result.Item,
-      message: 'Event retrieved successfully'
+      message: "Event retrieved successfully",
     });
   } catch (error) {
-    console.error('Error fetching event:', error);
+    console.error("Error fetching event:", error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching event',
-      error: error.message
+      message: "Error fetching event",
+      error: error.message,
     });
   }
 });
 
 // PUT /api/calendar/events/:id - Update an event
-router.put('/events/:id', async (req, res) => {
+router.put("/events/:id", async (req, res) => {
   const { id } = req.params;
   const { title, description, location, date, time, endTime, email } = req.body;
 
   try {
     // Check if event exists
-    const existingResult = await docClient.send(new GetCommand({
-      TableName: TABLES.EVENTS,
-      Key: { id }
-    }));
+    const existingResult = await docClient.send(
+      new GetCommand({
+        TableName: TABLES.EVENTS,
+        Key: { id },
+      })
+    );
 
     if (!existingResult.Item) {
       return res.status(404).json({
         success: false,
-        message: 'Event not found'
+        message: "Event not found",
       });
     }
 
@@ -304,7 +371,9 @@ router.put('/events/:id', async (req, res) => {
       startDateTime = new Date(`${date}T${time}`).toISOString();
       endDateTime = endTime
         ? new Date(`${date}T${endTime}`).toISOString()
-        : new Date(new Date(`${date}T${time}`).getTime() + 60 * 60 * 1000).toISOString();
+        : new Date(
+            new Date(`${date}T${time}`).getTime() + 60 * 60 * 1000
+          ).toISOString();
     }
 
     // Update in Google Calendar if authenticated and has Google event ID
@@ -312,86 +381,97 @@ router.put('/events/:id', async (req, res) => {
       const authClient = await getAuthenticatedClient(email);
 
       if (authClient) {
-        const calendar = google.calendar({ version: 'v3', auth: authClient });
+        const calendar = google.calendar({ version: "v3", auth: authClient });
 
         try {
           await calendar.events.update({
-            calendarId: 'primary',
+            calendarId: "primary",
             eventId: existingEvent.google_event_id,
             requestBody: {
               summary: title || existingEvent.title,
-              description: description !== undefined ? description : existingEvent.description,
-              location: location !== undefined ? location : existingEvent.location,
+              description:
+                description !== undefined
+                  ? description
+                  : existingEvent.description,
+              location:
+                location !== undefined ? location : existingEvent.location,
               start: {
                 dateTime: startDateTime,
-                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
               },
               end: {
                 dateTime: endDateTime,
-                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
-              }
-            }
+                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+              },
+            },
           });
         } catch (googleError) {
-          console.error('Error updating Google Calendar:', googleError);
+          console.error("Error updating Google Calendar:", googleError);
         }
       }
     }
 
     // Update in DynamoDB
-    await docClient.send(new UpdateCommand({
-      TableName: TABLES.EVENTS,
-      Key: { id },
-      UpdateExpression: 'SET title = :title, description = :desc, #loc = :loc, start_datetime = :start, end_datetime = :end, updated_at = :updated',
-      ExpressionAttributeNames: { '#loc': 'location' },
-      ExpressionAttributeValues: {
-        ':title': title || existingEvent.title,
-        ':desc': description !== undefined ? description : existingEvent.description,
-        ':loc': location !== undefined ? location : existingEvent.location,
-        ':start': startDateTime,
-        ':end': endDateTime,
-        ':updated': new Date().toISOString()
-      }
-    }));
+    await docClient.send(
+      new UpdateCommand({
+        TableName: TABLES.EVENTS,
+        Key: { id },
+        UpdateExpression:
+          "SET title = :title, description = :desc, #loc = :loc, start_datetime = :start, end_datetime = :end, updated_at = :updated",
+        ExpressionAttributeNames: { "#loc": "location" },
+        ExpressionAttributeValues: {
+          ":title": title || existingEvent.title,
+          ":desc":
+            description !== undefined ? description : existingEvent.description,
+          ":loc": location !== undefined ? location : existingEvent.location,
+          ":start": startDateTime,
+          ":end": endDateTime,
+          ":updated": new Date().toISOString(),
+        },
+      })
+    );
 
     res.json({
       success: true,
-      message: 'Event updated successfully',
+      message: "Event updated successfully",
       data: {
         id,
         title: title || existingEvent.title,
-        description: description !== undefined ? description : existingEvent.description,
+        description:
+          description !== undefined ? description : existingEvent.description,
         location: location !== undefined ? location : existingEvent.location,
         start_datetime: startDateTime,
-        end_datetime: endDateTime
-      }
+        end_datetime: endDateTime,
+      },
     });
   } catch (error) {
-    console.error('Error updating event:', error);
+    console.error("Error updating event:", error);
     res.status(500).json({
       success: false,
-      message: 'Error updating event',
-      error: error.message
+      message: "Error updating event",
+      error: error.message,
     });
   }
 });
 
 // DELETE /api/calendar/events/:id - Delete an event
-router.delete('/events/:id', async (req, res) => {
+router.delete("/events/:id", async (req, res) => {
   const { id } = req.params;
   const { email } = req.query;
 
   try {
     // Get the event first to check for Google event ID
-    const result = await docClient.send(new GetCommand({
-      TableName: TABLES.EVENTS,
-      Key: { id }
-    }));
+    const result = await docClient.send(
+      new GetCommand({
+        TableName: TABLES.EVENTS,
+        Key: { id },
+      })
+    );
 
     if (!result.Item) {
       return res.status(404).json({
         success: false,
-        message: 'Event not found'
+        message: "Event not found",
       });
     }
 
@@ -402,35 +482,37 @@ router.delete('/events/:id', async (req, res) => {
       const authClient = await getAuthenticatedClient(email);
 
       if (authClient) {
-        const calendar = google.calendar({ version: 'v3', auth: authClient });
+        const calendar = google.calendar({ version: "v3", auth: authClient });
 
         try {
           await calendar.events.delete({
-            calendarId: 'primary',
-            eventId: event.google_event_id
+            calendarId: "primary",
+            eventId: event.google_event_id,
           });
         } catch (googleError) {
-          console.error('Error deleting from Google Calendar:', googleError);
+          console.error("Error deleting from Google Calendar:", googleError);
         }
       }
     }
 
     // Delete from DynamoDB
-    await docClient.send(new DeleteCommand({
-      TableName: TABLES.EVENTS,
-      Key: { id }
-    }));
+    await docClient.send(
+      new DeleteCommand({
+        TableName: TABLES.EVENTS,
+        Key: { id },
+      })
+    );
 
     res.json({
       success: true,
-      message: 'Event deleted successfully'
+      message: "Event deleted successfully",
     });
   } catch (error) {
-    console.error('Error deleting event:', error);
+    console.error("Error deleting event:", error);
     res.status(500).json({
       success: false,
-      message: 'Error deleting event',
-      error: error.message
+      message: "Error deleting event",
+      error: error.message,
     });
   }
 });

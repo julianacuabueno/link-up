@@ -8,6 +8,7 @@ import SyncIcon from '@mui/icons-material/Sync';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Footer from '../components/Footer';
 
+const BackendURL = "http://127.0.0.1:3000";
 const Event = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -26,7 +27,7 @@ const Event = () => {
       if (userEmail) params.append('email', userEmail);
       if (sync) params.append('sync', 'true');
 
-      const response = await fetch(`/api/calendar/events?${params}`, {
+      const response = await fetch(`${BackendURL}/api/calendar/events?${params}`, {
         cache: 'no-store'
       });
       const data = await response.json();
