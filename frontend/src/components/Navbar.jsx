@@ -93,7 +93,27 @@ const Navbar = () => {
             </Box>
           )}
         </Box>
-        <IconButton onClick={toggleCollapse} sx={{ color: theme.palette.text.secondary }}>
+        <IconButton 
+          onClick={toggleCollapse} 
+          sx={{ 
+            color: theme.palette.text.secondary,
+            '&:hover': {
+              bgcolor: 'transparent'
+            },
+            '&:focus': {
+              outline: 'none',
+              bgcolor: 'transparent'
+            },
+            '&:active': {
+              bgcolor: 'transparent'
+            },
+            '&.Mui-focusVisible': {
+              bgcolor: 'transparent'
+            }
+          }}
+          disableRipple
+          disableFocusRipple
+        >
           {isCollapsed ? <KeyboardArrowRightIcon /> : <KeyboardArrowLeftIcon />}
         </IconButton>
       </Box>
