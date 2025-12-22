@@ -59,6 +59,8 @@ Resources:
             TableName: !Ref AuthTokensTable
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn: !Sub "arn:${AWS::Partition}:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:GoogleAPI-*"
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: !Sub "arn:${AWS::Partition}:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:YelpAPI-*"
 
       Events:
         Root:

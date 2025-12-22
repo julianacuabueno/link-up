@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
-const UserProfile = () => {
+const UserProfile = ({ isCollapsed = false }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -37,7 +37,7 @@ const UserProfile = () => {
       sx={{
         display: "flex",
         alignItems: "center",
-        justifyContent: "space-between",
+        justifyContent: isCollapsed ? "center" : "space-between",
         p: 2,
         borderTop: "1px solid #2a2a3e",
       }}
@@ -52,51 +52,55 @@ const UserProfile = () => {
         >
           U
         </Avatar>
-        <Box>
-          <Typography
-            variant="body1"
-            sx={{
-              color: 'black',
-              fontWeight: 500,
-              fontSize: '0.95rem',
-              textAlign: 'left',
-            }}
-          >
-            UserName
-          </Typography>
-          <Typography
-            variant="body2"
+        {!isCollapsed && (
+          <Box>
+            <Typography
+              variant="body1"
+              sx={{
+                color: 'black',
+                fontWeight: 500,
+                fontSize: '0.95rem',
+                textAlign: 'left',
+              }}
+            >
+              UserName
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                color: "#8e8ea0",
+                fontSize: "0.8rem",
+              }}
+            >
+              user@email.com
+            </Typography>
+          </Box>
+        )}
+      </Box>
+      {!isCollapsed && (
+        <>
+          <IconButton
+            onClick={handleClick}
             sx={{
               color: "#8e8ea0",
-              fontSize: "0.8rem",
+              "&:hover": {
+                bgcolor: "#2a2a3e",
+              },
             }}
           >
-            user@email.com
-          </Typography>
-        </Box>
-      </Box>
-      <IconButton
-        onClick={handleClick}
-        sx={{
-          color: "#8e8ea0",
-          "&:hover": {
-            bgcolor: "#2a2a3e",
-          },
-        }}
-      >
-        <MoreVertIcon />
-      </IconButton>
-      <Menu
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        sx={{
-          "& .MuiPaper-root": {
-            bgcolor: "#1a1a2e",
-            border: "1px solid #2a2a3e",
-          },
-        }}
-      >
+            <MoreVertIcon />
+          </IconButton>
+          <Menu
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleClose}
+            sx={{
+              "& .MuiPaper-root": {
+                bgcolor: "#1a1a2e",
+                border: "1px solid #2a2a3e",
+              },
+            }}
+          >
         {/* <MenuItem
           onClick={() => {
             handleClose();
@@ -127,6 +131,8 @@ const UserProfile = () => {
           Logout
         </MenuItem>
       </Menu>
+        </>
+      )}
     </Box>
   );
 };

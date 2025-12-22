@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Drawer,
@@ -16,20 +17,27 @@ import AddIcon from '@mui/icons-material/Add';
 import SettingsIcon from '@mui/icons-material/Settings';
 import InfoIcon from '@mui/icons-material/Info';
 import FeedbackIcon from '@mui/icons-material/Feedback';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 // import ComputerIcon from '@mui/icons-material/Computer';
 import UserProfile from './UserProfile';
 import LinkUp from  "../images/LinkUp.png";
 import BlackLogo from "../images/black-logo.png";
 
 const drawerWidth = 280;
+const collapsedWidth = 80;
 
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const handleMenuClick = (path) => {
     navigate(path);
+  };
+
+  const toggleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
   };
 
   const isSelected = (path) => {
@@ -53,14 +61,15 @@ const Navbar = () => {
     <Drawer
       variant="permanent"
       sx={{
-        width: drawerWidth,
+        width: isCollapsed ? collapsedWidth : drawerWidth,
         flexShrink: 0,
         "& .MuiDrawer-paper": {
-          width: drawerWidth,
+          width: isCollapsed ? collapsedWidth : drawerWidth,
           boxSizing: "border-box",
           bgcolor: "#edede9",
           color: "#fff",
           border: "none",
+          transition: "width 0.3s ease-in-out",
         },
       }}
     >
@@ -75,50 +84,39 @@ const Navbar = () => {
           mb: 1,
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, justifyContent: isCollapsed ? "center" : "flex-start" }}>
           <img
             src={BlackLogo}
             alt="Link-Up Logo"
             style={{ width: 40, height: 40 }}
           />
-          {/* <Box
-            sx={{
-              bgcolor: '#2a2a3e',
-              borderRadius: 1,
-              p: 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <img src={logo} alt="Link-Up Logo" style={{ width: 24, height: 24 }} />
-            <ComputerIcon sx={{ color: '#8e8ea0', fontSize: 24 }} />  */}
-          {/* {change icon to app logo } */}
-          {/* </Box> */}
-          <Box>
-            <Typography
-              variant="h6"
-              sx={{
-                fontWeight: 600,
-                fontSize: "1.1rem",
-                color: "black",
-                textAlign: 'left',
-              }}
-            >
-              Link-Up
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                color: "black",
-                fontSize: "0.85rem",
-              }}
-            >
-              Make plans with ease
-            </Typography>
-          </Box>
+          {!isCollapsed && (
+            <Box>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 600,
+                  fontSize: "1.1rem",
+                  color: "black",
+                  textAlign: 'left',
+                }}
+              >
+                Link-Up
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "black",
+                  fontSize: "0.85rem",
+                }}
+              >
+                Make plans with ease
+              </Typography>
+            </Box>
+          )}
         </Box>
         <IconButton
+          onClick={toggleCollapse}
           sx={{
             color: "#8e8ea0",
             "&:hover": {
@@ -126,7 +124,7 @@ const Navbar = () => {
             },
           }}
         >
-          <KeyboardArrowDownIcon />
+          {isCollapsed ? <KeyboardArrowRightIcon /> : <KeyboardArrowLeftIcon />}
         </IconButton>
       </Box>
 
@@ -140,33 +138,52 @@ const Navbar = () => {
             sx={{
               borderRadius: 1.5,
               mb: 0.5,
+              "& .MuiListItemText-primary": {
+                color: "black",
+              },
+              "& .MuiListItemIcon-root": {
+                color: "black",
+              },
               "&.Mui-selected": {
                 bgcolor: "#2a2a3e",
                 "&:hover": {
                   bgcolor: "#333347",
                 },
+                "& .MuiListItemText-primary": {
+                  color: "#fff",
+                },
+                "& .MuiListItemIcon-root": {
+                  color: "#fff",
+                },
               },
               "&:hover": {
                 bgcolor: "#1a1a2e",
+                "& .MuiListItemText-primary": {
+                  color: "#fff",
+                },
+                "& .MuiListItemIcon-root": {
+                  color: "#fff",
+                },
               },
             }}
           >
             <ListItemIcon
               sx={{
-                color: isSelected(item.path) ? "#fff" : "black",
                 minWidth: 40,
+                justifyContent: isCollapsed ? "center" : "flex-start",
               }}
             >
               {item.icon}
             </ListItemIcon>
-            <ListItemText
-              primary={item.name}
-              primaryTypographyProps={{
-                fontSize: "0.95rem",
-                fontWeight: isSelected(item.path) ? 600 : 400,
-                color: isSelected(item.path) ? "#fff" : "black",
-              }}
-            />
+            {!isCollapsed && (
+              <ListItemText
+                primary={item.name}
+                primaryTypographyProps={{
+                  fontSize: "0.95rem",
+                  fontWeight: isSelected(item.path) ? 600 : 400,
+                }}
+              />
+            )}
           </ListItemButton>
         ))}
 
@@ -180,40 +197,62 @@ const Navbar = () => {
               sx={{
                 borderRadius: 1.5,
                 mb: 0.5,
+                "& .MuiListItemText-primary": {
+                  color: "black",
+                },
+                "& .MuiListItemIcon-root": {
+                  color: "black",
+                },
                 "&.Mui-selected": {
                   bgcolor: "#2a2a3e",
                   "&:hover": {
                     bgcolor: "#333347",
                   },
+                  "& .MuiListItemText-primary": {
+                    color: "#fff",
+                  },
+                  "& .MuiListItemIcon-root": {
+                    color: "#fff",
+                  },
                 },
                 "&:hover": {
                   bgcolor: "#1a1a2e",
+                  "& .MuiListItemText-primary": {
+                    color: "#fff",
+                  },
+                  "& .MuiListItemIcon-root": {
+                    color: "#fff",
+                  },
                 },
               }}
             >
               <ListItemIcon
                 sx={{
-                  color: isSelected(item.path) ? "#fff" : "black",
                   minWidth: 40,
+                  justifyContent: isCollapsed ? "center" : "flex-start",
+                  "&.MuiListItemIcon-root": {
+                    color: "black",
+                  },
                 }}
               >
                 {item.icon}
               </ListItemIcon>
-              <ListItemText
-                primary={item.name}
-                primaryTypographyProps={{
-                  fontSize: "0.95rem",
-                  fontWeight: isSelected(item.path) ? 600 : 400,
-                  color: isSelected(item.path) ? "#fff" : "black",
-                }}
-              />
+              {!isCollapsed && (
+                <ListItemText
+                  primary={item.name}
+                  primaryTypographyProps={{
+                    fontSize: "0.95rem",
+                    fontWeight: isSelected(item.path) ? 600 : 400,
+                  }}
+                />
+              )}
             </ListItemButton>
           ))}
         </Box>
       </List>
 
       {/* User Profile Section */}
-      <UserProfile />
+      <UserProfile isCollapsed={isCollapsed} />
     </Drawer>
   );
 };
