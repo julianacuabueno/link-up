@@ -1,19 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Box, Typography, Card, CardContent, Stack, Chip, CircularProgress, Button } from '@mui/material';
+import { Box, Typography, Card, CardContent, Stack, Chip, CircularProgress, Button, Tabs, Tab } from '@mui/material';
 import EventIcon from '@mui/icons-material/Event';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import SyncIcon from '@mui/icons-material/Sync';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Footer from '../components/Footer';
+import PlaceSearch from '../components/PlaceSearch';
 
-const BackendURL = "http://127.0.0.1:3000";
+const BackendURL = "https://guno6rd8a7.execute-api.us-west-2.amazonaws.com";
 const Event = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState(null);
+  const [selectedPlace, setSelectedPlace] = useState('');
+  const [activeTab, setActiveTab] = useState(0);
   const location = useLocation();
 
   const userEmail = localStorage.getItem('userEmail');
@@ -103,133 +106,192 @@ const Event = () => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
       <Box sx={{ flexGrow: 1 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h3" sx={{ color: 'black', fontWeight: 600 }}>
-            Upcoming Events
-          </Typography>
-          {userEmail && (
-            <Button
-              variant="outlined"
-              startIcon={syncing ? <CircularProgress size={16} /> : <SyncIcon />}
-              onClick={() => fetchEvents(true)}
-              disabled={syncing}
-              sx={{
-                borderColor: '#4a90e2',
-                color: '#4a90e2',
-                textTransform: 'none',
-                '&:hover': {
-                  borderColor: '#357abd',
-                  bgcolor: 'rgba(74, 144, 226, 0.1)'
-                }
-              }}
-            >
-              {syncing ? 'Syncing...' : 'Sync with Google'}
-            </Button>
-          )}
-        </Box>
-        <Typography variant="body1" sx={{ color: '#8e8ea0', mb: 4 }}>
-          View and manage your upcoming events and activities
+        <Typography variant="h3" sx={{ color: 'black', mb: 3, fontWeight: 600 }}>
+          Events & Places
         </Typography>
 
-        {error && (
-          <Typography sx={{ color: '#f44336', mb: 2 }}>{error}</Typography>
-        )}
-
-        {events.length === 0 ? (
-          <Card
+        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+          <Tabs
+            value={activeTab}
+            onChange={(event, newValue) => setActiveTab(newValue)}
             sx={{
-              bgcolor: '#2a2a3e',
-              border: '1px solid #3a3a4e',
-              borderRadius: 2,
-              p: 4,
-              textAlign: 'center'
+              '& .MuiTab-root': {
+                color: '#8e8ea0',
+                '&.Mui-selected': {
+                  color: '#4a90e2',
+                },
+              },
+              '& .MuiTabs-indicator': {
+                backgroundColor: '#4a90e2',
+              },
             }}
           >
-            <Typography variant="h6" sx={{ color: '#8e8ea0' }}>
-              No upcoming events
-            </Typography>
-            <Typography variant="body2" sx={{ color: '#6e6e80', mt: 1 }}>
-              Create a new event to get started!
-            </Typography>
-          </Card>
-        ) : (
-          <Stack spacing={3}>
-            {events.map((event) => (
+            <Tab label="Upcoming Events" />
+            <Tab label="Find Places" />
+          </Tabs>
+        </Box>
+
+        {/* Upcoming Events Tab */}
+        {activeTab === 0 && (
+          <Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="body1" sx={{ color: '#8e8ea0' }}>
+                View and manage your upcoming events and activities
+              </Typography>
+              {userEmail && (
+                <Button
+                  variant="outlined"
+                  startIcon={syncing ? <CircularProgress size={16} /> : <SyncIcon />}
+                  onClick={() => fetchEvents(true)}
+                  disabled={syncing}
+                  sx={{
+                    borderColor: '#4a90e2',
+                    color: '#4a90e2',
+                    textTransform: 'none',
+                    '&:hover': {
+                      borderColor: '#357abd',
+                      bgcolor: 'rgba(74, 144, 226, 0.1)'
+                    }
+                  }}
+                >
+                  {syncing ? 'Syncing...' : 'Sync with Google'}
+                </Button>
+              )}
+            </Box>
+
+            {error && (
+              <Typography sx={{ color: '#f44336', mb: 2 }}>{error}</Typography>
+            )}
+
+            {events.length === 0 ? (
               <Card
-                key={event.id}
                 sx={{
                   bgcolor: '#2a2a3e',
                   border: '1px solid #3a3a4e',
                   borderRadius: 2,
-                  transition: 'all 0.2s',
-                  '&:hover': {
-                    borderColor: '#4a90e2',
-                    transform: 'translateY(-2px)',
-                  },
+                  p: 4,
+                  textAlign: 'center'
                 }}
               >
-                <CardContent>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                    <Typography variant="h6" sx={{ color: '#fff', fontWeight: 600 }}>
-                      {event.title}
-                    </Typography>
-                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                      {event.google_event_id && (
-                        <Chip
-                          label="Google"
-                          size="small"
-                          sx={{ bgcolor: '#4285f4', color: '#fff' }}
-                        />
-                      )}
-                      <Chip
-                        label={`${event.attendees || 0} attending`}
-                        size="small"
-                        sx={{ bgcolor: '#4a90e2', color: '#fff' }}
-                      />
-                      <Button
-                        size="small"
-                        onClick={() => handleDelete(event.id)}
-                        sx={{ minWidth: 'auto', color: '#f44336' }}
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </Button>
-                    </Box>
-                  </Box>
-
-                  {event.description && (
-                    <Typography variant="body2" sx={{ color: '#b0b0c0', mb: 2 }}>
-                      {event.description}
-                    </Typography>
-                  )}
-
-                  <Stack spacing={1}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <EventIcon sx={{ color: '#8e8ea0', fontSize: 20 }} />
-                      <Typography variant="body2" sx={{ color: '#b0b0c0' }}>
-                        {formatDate(event.start_datetime)}
-                      </Typography>
-                    </Box>
-
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <AccessTimeIcon sx={{ color: '#8e8ea0', fontSize: 20 }} />
-                      <Typography variant="body2" sx={{ color: '#b0b0c0' }}>
-                        {formatTime(event.start_datetime)} - {formatTime(event.end_datetime)}
-                      </Typography>
-                    </Box>
-
-                    {event.location && (
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <LocationOnIcon sx={{ color: '#8e8ea0', fontSize: 20 }} />
-                        <Typography variant="body2" sx={{ color: '#b0b0c0' }}>
-                          {event.location}
-                        </Typography>
-                      </Box>
-                    )}
-                  </Stack>
-                </CardContent>
+                <Typography variant="h6" sx={{ color: '#8e8ea0' }}>
+                  No upcoming events
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#6e6e80', mt: 1 }}>
+                  Create a new event to get started!
+                </Typography>
               </Card>
-            ))}
-          </Stack>
+            ) : (
+              <Stack spacing={3}>
+                {events.map((event) => (
+                  <Card
+                    key={event.id}
+                    sx={{
+                      bgcolor: '#2a2a3e',
+                      border: '1px solid #3a3a4e',
+                      borderRadius: 2,
+                      transition: 'all 0.2s',
+                      '&:hover': {
+                        borderColor: '#4a90e2',
+                        transform: 'translateY(-2px)',
+                      },
+                    }}
+                  >
+                    <CardContent>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                        <Typography variant="h6" sx={{ color: '#fff', fontWeight: 600 }}>
+                          {event.title}
+                        </Typography>
+                        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                          {event.google_event_id && (
+                            <Chip
+                              label="Google"
+                              size="small"
+                              sx={{ bgcolor: '#4285f4', color: '#fff' }}
+                            />
+                          )}
+                          <Chip
+                            label={`${event.attendees || 0} attending`}
+                            size="small"
+                            sx={{ bgcolor: '#4a90e2', color: '#fff' }}
+                          />
+                          <Button
+                            size="small"
+                            onClick={() => handleDelete(event.id)}
+                            sx={{ minWidth: 'auto', color: '#f44336' }}
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </Button>
+                        </Box>
+                      </Box>
+
+                      {event.description && (
+                        <Typography variant="body2" sx={{ color: '#b0b0c0', mb: 2 }}>
+                          {event.description}
+                        </Typography>
+                      )}
+
+                      <Stack spacing={1}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <EventIcon sx={{ color: '#8e8ea0', fontSize: 20 }} />
+                          <Typography variant="body2" sx={{ color: '#b0b0c0' }}>
+                            {formatDate(event.start_datetime)}
+                          </Typography>
+                        </Box>
+
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <AccessTimeIcon sx={{ color: '#8e8ea0', fontSize: 20 }} />
+                          <Typography variant="body2" sx={{ color: '#b0b0c0' }}>
+                            {formatTime(event.start_datetime)} - {formatTime(event.end_datetime)}
+                          </Typography>
+                        </Box>
+
+                        {event.location && (
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <LocationOnIcon sx={{ color: '#8e8ea0', fontSize: 20 }} />
+                            <Typography variant="body2" sx={{ color: '#b0b0c0' }}>
+                              {event.location}
+                            </Typography>
+                          </Box>
+                        )}
+                      </Stack>
+                    </CardContent>
+                  </Card>
+                ))}
+              </Stack>
+            )}
+          </Box>
+        )}
+
+        {/* Find Places Tab */}
+        {activeTab === 1 && (
+          <Box>
+            <Typography variant="body1" sx={{ color: '#8e8ea0', mb: 4 }}>
+              Search for restaurants, bars, venues, and other locations with reviews and ratings
+            </Typography>
+
+            <PlaceSearch
+              value={selectedPlace}
+              onChange={setSelectedPlace}
+              label="Search for places (e.g., 'pizza in New York' or 'bars near me')"
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  color: '#fff',
+                  '& fieldset': {
+                    borderColor: '#4a4a5e',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: '#6a6a7e',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#4a90e2',
+                  },
+                },
+                '& .MuiInputLabel-root': {
+                  color: '#8e8ea0',
+                },
+              }}
+            />
+          </Box>
         )}
       </Box>
       <Footer />
