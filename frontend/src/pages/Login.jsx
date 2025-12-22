@@ -79,9 +79,26 @@ const Login = () => {
     setLoading(true);
 
     try {
-      localStorage.setItem('userEmail', formData.email);
-      localStorage.setItem('isLoggedIn', 'true');
-      navigate('/');
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        localStorage.setItem('userEmail', formData.email);
+        localStorage.setItem('isLoggedIn', 'true');
+        navigate('/');
+      } else {
+        setError(data.message || 'Login failed. Please try again.');
+      }
     } catch (err) {
       console.error('Login error:', err);
       setError('Login failed. Please try again.');
