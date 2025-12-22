@@ -84,10 +84,10 @@ const Navbar = () => {
           <img src={BlackLogo} alt="Link-Up Logo" style={{ width: 40, height: 40 }} />
           {!isCollapsed && (
             <Box>
-              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: "2rem", color: textColor }}>
+              <Typography variant="h3" sx={{ fontWeight: 600, fontSize: "2rem", color: "#fbf7ef" }}>
                 Link-Up
               </Typography>
-              <Typography variant="body2" sx={{ color: textColor, fontSize: "0.85rem" }}>
+              <Typography variant="body2" sx={{ color: "fbf7ef", fontSize: "0.85rem" }}>
                 Make plans with ease
               </Typography>
             </Box>
