@@ -34,11 +34,11 @@ Resources:
       Description: Express app behind HTTP API
       Environment:
         Variables:
-          USERS_TABLE: !Ref UsersTable
-          EVENTS_TABLE: !Ref EventsTable
-          GOOGLE_CLIENT_ID: "{{resolve:ssm:/link-up/google-client-id}}"
-          GOOGLE_CLIENT_SECRET: "{{resolve:ssm:/link-up/google-client-secret}}"
-          GOOGLE_REDIRECT_URI: !Sub "https://${ExpressHttpApi}.execute-api.${AWS::Region}.amazonaws.com/api/auth/google/callback"
+          # USERS_TABLE: !Ref UsersTable
+          # EVENTS_TABLE: !Ref EventsTable
+          # GOOGLE_CLIENT_ID: "{{resolve:ssm:/link-up/google-client-id}}"
+          # GOOGLE_CLIENT_SECRET: "{{resolve:ssm:/link-up/google-client-secret}}"
+          # GOOGLE_REDIRECT_URI: !Sub "https://${ExpressHttpApi}.execute-api.${AWS::Region}.amazonaws.com/api/auth/google/callback"
           FRONTEND_URL: !Sub "http://localhost:5173"
       Policies:
         - DynamoDBCrudPolicy:

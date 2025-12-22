@@ -8,7 +8,7 @@ import SyncIcon from '@mui/icons-material/Sync';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Footer from '../components/Footer';
 
-const BackendURL = "http://127.0.0.1:3000";
+const BackendURL = "https://guno6rd8a7.execute-api.us-west-2.amazonaws.com";
 const Event = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
