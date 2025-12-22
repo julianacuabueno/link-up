@@ -239,7 +239,7 @@ const Create = () => {
 
   const textFieldSx = {
     '& .MuiOutlinedInput-root': {
-      color: '#fff',
+      color: '#000',
       '& fieldset': {
         borderColor: '#4a4a5e',
       },
@@ -247,11 +247,11 @@ const Create = () => {
         borderColor: '#6a6a7e',
       },
       '&.Mui-focused fieldset': {
-        borderColor: '#4a90e2',
+        borderColor: '#386641',
       },
     },
     '& .MuiInputLabel-root': {
-      color: '#8e8ea0',
+      color: '#000',
     },
   };
 
@@ -259,10 +259,10 @@ const Create = () => {
     <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
       <Box sx={{ flexGrow: 1 }}>
         <Typography variant="h3" sx={{ color: 'black', mb: 3, fontWeight: 600 }}>
-          Create New Event
+          Create your next plan ☺︎
         </Typography>
         <Typography variant="body1" sx={{ color: '#8e8ea0', mb: 4 }}>
-          Plan a new event and invite your friends
+          Plan a new event 📋
         </Typography>
 
         {/* Tabs */}
@@ -274,11 +274,11 @@ const Create = () => {
               '& .MuiTab-root': {
                 color: '#8e8ea0',
                 '&.Mui-selected': {
-                  color: '#4a90e2',
+                  color: '#386641',
                 },
               },
               '& .MuiTabs-indicator': {
-                backgroundColor: '#4a90e2',
+                backgroundColor: '#386641',
               },
             }}
           >
@@ -291,12 +291,12 @@ const Create = () => {
         {activeTab === 0 && (
           <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', py: 3 }}>
             <Typography variant="body1" sx={{ color: '#8e8ea0', mb: 3 }}>
-              Browse popular categories from Ticketmaster and Yelp. Click on any category to start creating an event!
+              Browse from different categories. Click on any category to start creating your next plan!
             </Typography>
             
             {loadingCategories ? (
               <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexGrow: 1 }}>
-                <CircularProgress sx={{ color: '#4a90e2' }} />
+                <CircularProgress sx={{ color: '#386641' }} />
               </Box>
             ) : categories.length > 0 ? (
               <Grid container spacing={2}>
@@ -305,8 +305,8 @@ const Create = () => {
                     <Card
                       onClick={() => handleCategorySelect(category)}
                       sx={{
-                        bgcolor: '#2a2a3e',
-                        border: '1px solid #3a3a4e',
+                        bgcolor: '#c5d4b2',
+                        border: '1px solid #c5d4b2',
                         borderRadius: 2,
                         cursor: 'pointer',
                         display: 'flex',
@@ -318,17 +318,17 @@ const Create = () => {
                         minHeight: 100,
                         transition: 'all 0.2s ease',
                         '&:hover': {
-                          bgcolor: '#3a3a4e',
-                          borderColor: '#4a90e2',
+                          bgcolor: '#b8c9a3',
+                          borderColor: '#386641',
                           transform: 'translateY(-4px)',
-                          boxShadow: '0 4px 12px rgba(74, 144, 226, 0.2)',
+                          boxShadow: '0 4px 12px rgba(56, 102, 65, 0.2)',
                         },
                       }}
                     >
                       <Typography
                         variant="subtitle2"
                         sx={{
-                          color: '#fff',
+                          color: '#000',
                           fontWeight: 600,
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
@@ -356,8 +356,8 @@ const Create = () => {
         {activeTab === 1 && (
           <Card
             sx={{
-              bgcolor: '#2a2a3e',
-              border: '1px solid #3a3a4e',
+              bgcolor: '#c5d4b2',
+              border: '1px solid #c5d4b2',
               borderRadius: 2,
               maxWidth: 600,
             }}
@@ -431,13 +431,13 @@ const Create = () => {
                     fullWidth
                     disabled={loading}
                     sx={{
-                      bgcolor: '#4a90e2',
+                      bgcolor: '#386641',
                       color: '#fff',
                       textTransform: 'none',
                       fontWeight: 600,
                       py: 1.5,
                       '&:hover': {
-                        bgcolor: '#357abd',
+                        bgcolor: '#2d4d30',
                       },
                       '&:disabled': {
                         bgcolor: '#4a4a5e',

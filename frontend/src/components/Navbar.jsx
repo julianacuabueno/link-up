@@ -46,7 +46,7 @@ const Navbar = () => {
 
   const mainMenuItems = [
     { name: 'Home', icon: <HomeIcon />, path: '/' },
-    { name: 'Event', icon: <EventIcon />, path: '/events' },
+    { name: 'Events', icon: <EventIcon />, path: '/events' },
     { name: 'Create', icon: <AddIcon />, path: '/create' },
     // { name: 'Tasks', icon: <AssignmentIcon />, path: '/tasks' },
   ];
@@ -80,7 +80,7 @@ const Navbar = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          borderBottom: "1px solid #2a2a3e",
+          borderBottom: "1px solid #c5d4b2",
           mb: 1,
         }}
       >
@@ -158,9 +158,9 @@ const Navbar = () => {
                 color: "black",
               },
               "&.Mui-selected": {
-                bgcolor: "#2a2a3e",
+                bgcolor: "#386641",
                 "&:hover": {
-                  bgcolor: "#333347",
+                  bgcolor: "#b8c9a3",
                 },
                 "& .MuiListItemText-primary": {
                   color: "#fff",
@@ -170,7 +170,7 @@ const Navbar = () => {
                 },
               },
               "&:hover": {
-                bgcolor: "#1a1a2e",
+                bgcolor: "#386641",
                 "& .MuiListItemText-primary": {
                   color: "#fff",
                 },
@@ -220,9 +220,9 @@ const Navbar = () => {
                   color: "black",
                 },
                 "&.Mui-selected": {
-                  bgcolor: "#2a2a3e",
+                  bgcolor: "#386641",
                   "&:hover": {
-                    bgcolor: "#333347",
+                    bgcolor: "#b8c9a3",
                   },
                   "& .MuiListItemText-primary": {
                     color: "#fff",
@@ -232,7 +232,7 @@ const Navbar = () => {
                   },
                 },
                 "&:hover": {
-                  bgcolor: "#1a1a2e",
+                  bgcolor: "#386641",
                   "& .MuiListItemText-primary": {
                     color: "#fff",
                   },

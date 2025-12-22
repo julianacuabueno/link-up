@@ -39,7 +39,7 @@ const FloatingIcon = ({ Icon, size, top, left, delay, duration }) => (
       },
     }}
   >
-    <Icon sx={{ fontSize: size, color: '#4a90e2' }} />
+    <Icon sx={{ fontSize: size, color: '#386641' }} />
   </Box>
 );
 
@@ -118,17 +118,17 @@ const Login = () => {
         borderColor: '#cfd9de',
       },
       '&:hover fieldset': {
-        borderColor: '#4a90e2',
+        borderColor: '#386641',
       },
       '&.Mui-focused fieldset': {
-        borderColor: '#4a90e2',
+        borderColor: '#386641',
       },
     },
     '& .MuiInputLabel-root': {
-      color: '#536471',
+      color: '#000000ff',
     },
     '& .MuiInputLabel-root.Mui-focused': {
-      color: '#4a90e2',
+      color: '#386641',
     },
   };
 
@@ -453,7 +453,7 @@ const Login = () => {
               <Button
                 onClick={() => navigate('/signup')}
                 sx={{
-                  color: '#4a90e2',
+                  color: '#386641',
                   textTransform: 'none',
                   p: 0,
                   minWidth: 'auto',

@@ -82,7 +82,7 @@ const UserProfile = ({ isCollapsed = false }) => {
         alignItems: "center",
         justifyContent: isCollapsed ? "center" : "space-between",
         p: 2,
-        borderTop: "1px solid #2a2a3e",
+        borderTop: "1px solid #c5d4b2",
       }}
     >
       <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
@@ -92,7 +92,7 @@ const UserProfile = ({ isCollapsed = false }) => {
           sx={{
             width: 40,
             height: 40,
-            bgcolor: "#4a90e2",
+            bgcolor: "#386641",
           }}
         >
           {(user?.firstName || 'U')[0]?.toUpperCase()}
@@ -129,7 +129,7 @@ const UserProfile = ({ isCollapsed = false }) => {
             sx={{
               color: "#8e8ea0",
               "&:hover": {
-                bgcolor: "#2a2a3e",
+                bgcolor: "#c5d4b2",
               },
             }}
           >
@@ -141,8 +141,8 @@ const UserProfile = ({ isCollapsed = false }) => {
             onClose={handleClose}
             sx={{
               "& .MuiPaper-root": {
-                bgcolor: "#1a1a2e",
-                border: "1px solid #2a2a3e",
+                bgcolor: "#c5d4b2",
+                border: "1px solid #c5d4b2",
               },
             }}
           >

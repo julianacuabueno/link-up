@@ -15,8 +15,8 @@ const Feedback = () => {
 
         <Card
         sx={{
-          bgcolor: '#2a2a3e',
-          border: '1px solid #3a3a4e',
+          bgcolor: '#c5d4b2',
+          border: '1px solid #c5d4b2',
           borderRadius: 2,
           maxWidth: 600,
         }}
@@ -24,7 +24,7 @@ const Feedback = () => {
         <CardContent>
           <Stack spacing={3}>
             <Box>
-              <Typography variant="body1" sx={{ color: '#fff', mb: 1 }}>
+              <Typography variant="body1" sx={{ color: '#000', mb: 1 }}>
                 How would you rate your experience?
               </Typography>
               <Rating
@@ -32,10 +32,10 @@ const Feedback = () => {
                 size="large"
                 sx={{
                   '& .MuiRating-iconFilled': {
-                    color: '#4a90e2',
+                    color: '#386641',
                   },
                   '& .MuiRating-iconHover': {
-                    color: '#357abd',
+                    color: '#2d4d30',
                   },
                 }}
               />
@@ -55,7 +55,7 @@ const Feedback = () => {
                     borderColor: '#6a6a7e',
                   },
                   '&.Mui-focused fieldset': {
-                    borderColor: '#4a90e2',
+                    borderColor: '#386641',
                   },
                 },
                 '& .MuiInputLabel-root': {
@@ -73,7 +73,7 @@ const Feedback = () => {
               placeholder="Tell us what you think..."
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  color: '#fff',
+                  color: '#000',
                   '& fieldset': {
                     borderColor: '#4a4a5e',
                   },
@@ -81,7 +81,7 @@ const Feedback = () => {
                     borderColor: '#6a6a7e',
                   },
                   '&.Mui-focused fieldset': {
-                    borderColor: '#4a90e2',
+                    borderColor: '#386641',
                   },
                 },
                 '& .MuiInputLabel-root': {
@@ -95,13 +95,13 @@ const Feedback = () => {
               endIcon={<SendIcon />}
               fullWidth
               sx={{
-                bgcolor: '#4a90e2',
+                bgcolor: '#386641',
                 color: '#fff',
                 textTransform: 'none',
                 fontWeight: 600,
                 py: 1.5,
                 '&:hover': {
-                  bgcolor: '#357abd',
+                  bgcolor: '#2d4d30',
                 },
               }}
             >

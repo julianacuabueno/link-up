@@ -65,7 +65,7 @@ const Home = () => {
         sx={{
           '& .MuiBadge-badge': {
             fontSize: '1.2rem',
-            color: '#4a90e2',
+            color: '#386641',
             top: 8,
             right: 8,
           }
@@ -88,27 +88,29 @@ const Home = () => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, minHeight: '100%' }}>
       <Box>
+        {/* Title and description at top */}
         <Typography variant="h3" sx={{ color: 'black', mb: 3, fontWeight: 600 }}>
-          Welcome to Link-Up
+          Welcome to Link-Up 🔗‍️
         </Typography>
         <Typography variant="body1" sx={{ color: '#8e8ea0', mb: 4 }}>
-          Make plans with ease. Connect with friends and organize events effortlessly.
+          Make plans with ease. Connect with friends and organize events effortlessly. ✎𓂃
         </Typography>
 
         <Grid container spacing={3}>
-          <Grid item xs={12}>
+          {/* Left side: Upcoming Events */}
+          <Grid item xs={12} md={6}>
             <Card
               sx={{
-                bgcolor: '#2a2a3e',
-                border: '1px solid #3a3a4e',
+                bgcolor: '#c5d4b2',
+                border: '1px solid #c5d4b2',
                 borderRadius: 2,
               }}
             >
               <CardContent>
-                <Typography variant="h6" sx={{ color: '#fff', mb: 1, fontWeight: 600 }}>
+                <Typography variant="h6" sx={{ color: '#000', mb: 1, fontWeight: 600 }}>
                   Upcoming Events
                 </Typography>
-                <Typography variant="body2" sx={{ color: '#8e8ea0' }}>
+                <Typography variant="body2" sx={{ color: '#333' }}>
                   You have {upcomingEvents.length} event{upcomingEvents.length !== 1 ? 's' : ''} coming up this week
                 </Typography>
               </CardContent>
@@ -121,13 +123,13 @@ const Home = () => {
           <Grid item xs={12} md={6}>
             <Card
               sx={{
-                bgcolor: '#2a2a3e',
-                border: '1px solid #3a3a4e',
+                bgcolor: '#c5d4b2',
+                border: '1px solid #c5d4b2',
                 borderRadius: 2,
               }}
             >
               <CardContent>
-                <Typography variant="h6" sx={{ color: '#fff', mb: 2, fontWeight: 600, textAlign: 'center' }}>
+                <Typography variant="h6" sx={{ color: '#000', mb: 2, fontWeight: 600, textAlign: 'center' }}>
                   Calendar
                 </Typography>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -138,37 +140,39 @@ const Home = () => {
                       day: ServerDay
                     }}
                     sx={{
-                      bgcolor: '#2a2a3e',
-                      color: '#fff',
+                      bgcolor: '#c5d4b2',
+                      color: '#000',
                       '& .MuiPickersCalendarHeader-root': {
-                        color: '#fff',
+                        color: '#000',
                       },
                       '& .MuiDayCalendar-weekDayLabel': {
-                        color: '#8e8ea0',
+                        color: '#333',
                       },
                       '& .MuiPickersDay-root': {
-                        color: '#fff',
+                        color: '#000',
                         '&:hover': {
-                          bgcolor: '#3a3a4e',
+                          bgcolor: '#b8c9a3',
                         },
                         '&.Mui-selected': {
-                          bgcolor: '#646cff',
+                          bgcolor: '#386641',
+                          color: '#fff',
                           '&:hover': {
-                            bgcolor: '#535bf2',
+                            bgcolor: '#2d4d30',
                           },
                         },
                       },
                       '& .MuiPickersYear-yearButton': {
-                        color: '#fff',
+                        color: '#000',
                         '&:hover': {
-                          bgcolor: '#3a3a4e',
+                          bgcolor: '#b8c9a3',
                         },
                         '&.Mui-selected': {
-                          bgcolor: '#646cff',
+                          bgcolor: '#386641',
+                          color: '#fff',
                         },
                       },
                       '& .MuiIconButton-root': {
-                        color: '#fff',
+                        color: '#000',
                       },
                     }}
                   />
@@ -177,23 +181,23 @@ const Home = () => {
             </Card>
           </Grid>
 
-          {/* Events for selected date */}
+          {/* Right side: Events on selected date */}
           <Grid item xs={12} md={6}>
             <Card
               sx={{
-                bgcolor: '#2a2a3e',
-                border: '1px solid #3a3a4e',
+                bgcolor: '#c5d4b2',
+                border: '1px solid #c5d4b2',
                 borderRadius: 2,
-                minHeight: 400,
+                minHeight: 200,
               }}
             >
               <CardContent>
-                <Typography variant="h6" sx={{ color: '#fff', mb: 2, fontWeight: 600 }}>
-                  Events on {selectedDate.format('MMM D, YYYY')}
+                <Typography variant="h6" sx={{ color: '#000', mb: 2, fontWeight: 600 }}>
+                  📆 Today, {selectedDate.format('MMM D, YYYY')}
                 </Typography>
 
                 {selectedDateEvents.length === 0 ? (
-                  <Typography variant="body2" sx={{ color: '#8e8ea0' }}>
+                  <Typography variant="body2" sx={{ color: '#333' }}>
                     No events scheduled for this day
                   </Typography>
                 ) : (
@@ -203,15 +207,15 @@ const Home = () => {
                         key={event.id}
                         sx={{
                           p: 2,
-                          bgcolor: '#3a3a4e',
+                          bgcolor: '#c5d4b2',
                           borderRadius: 1,
-                          borderLeft: '4px solid #4a90e2'
+                          borderLeft: '4px solid #386641'
                         }}
                       >
-                        <Typography variant="subtitle1" sx={{ color: '#fff', fontWeight: 600 }}>
+                        <Typography variant="subtitle1" sx={{ color: '#000', fontWeight: 600 }}>
                           {event.title}
                         </Typography>
-                        <Typography variant="body2" sx={{ color: '#8e8ea0' }}>
+                        <Typography variant="body2" sx={{ color: '#333' }}>
                           {formatTime(event.start_datetime)}
                           {event.location && ` • ${event.location}`}
                         </Typography>
