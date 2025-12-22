@@ -14,6 +14,7 @@ import About from './pages/About';
 import Feedback from './pages/Feedback';
 import AccountSettings from './pages/AccountSettings';
 import Login from './pages/Login';
+import Signup from './pages/Signup';
 
 import './App.css';
 
