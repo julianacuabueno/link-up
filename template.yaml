@@ -61,6 +61,9 @@ Resources:
             SecretArn: !Sub "arn:${AWS::Partition}:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:GoogleAPI-*"
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn: !Sub "arn:${AWS::Partition}:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:YELP_API-*"
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: !Sub "arn:${AWS::Partition}:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:TicketMaster_API-*"
+        
 
       Events:
         Root:

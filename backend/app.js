@@ -11,6 +11,7 @@ import usersRouter from './routes/users.js';
 import authRouter from './routes/auth.js';
 import calendarRouter from './routes/calendar.js';
 import yelpRouter from './routes/yelp.js';
+import TicketMasterRouter from './routes/TicketMaster.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -32,6 +33,7 @@ app.use('/users', usersRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/calendar', calendarRouter);
 app.use('/api/yelp', yelpRouter);
+app.use('/api/TicketMaster', TicketMasterRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
