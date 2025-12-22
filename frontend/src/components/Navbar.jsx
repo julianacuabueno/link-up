@@ -117,10 +117,20 @@ const Navbar = () => {
         </Box>
         <IconButton
           onClick={toggleCollapse}
+          disableRipple
+          disableFocusRipple
           sx={{
             color: "#8e8ea0",
+            padding: 0,
             "&:hover": {
-              bgcolor: "#2a2a3e",
+              bgcolor: "transparent",
+            },
+            "&:focus": {
+              outline: "none",
+              bgcolor: "transparent",
+            },
+            "&:active": {
+              bgcolor: "transparent",
             },
           }}
         >
