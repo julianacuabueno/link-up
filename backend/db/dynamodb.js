@@ -22,6 +22,7 @@ const TABLES = {
   AUTH_TOKENS: process.env.AUTH_TOKENS_TABLE || 'link-up-2-auth-tokens'
 };
 
+
 export {
   docClient,
   PutCommand,

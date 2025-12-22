@@ -16,6 +16,8 @@ import GroupIcon from '@mui/icons-material/Group';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 
+const BackendURL = "https://guno6rd8a7.execute-api.us-west-2.amazonaws.com";
+
 // Floating icon component for background animation (same as Login)
 const FloatingIcon = ({ Icon, size, top, left, delay, duration }) => (
   <Box
@@ -78,7 +80,7 @@ const Signup = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/signup', {
+      const response = await fetch(`${BackendURL}/api/auth/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

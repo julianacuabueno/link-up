@@ -19,6 +19,8 @@ import GoogleIcon from '@mui/icons-material/Google';
 import LinkOffIcon from '@mui/icons-material/LinkOff';
 import Footer from '../components/Footer';
 
+const BackendURL = "https://guno6rd8a7.execute-api.us-west-2.amazonaws.com";
+
 const AccountSettings = () => {
   const [searchParams] = useSearchParams();
   const [formData, setFormData] = useState({
@@ -66,7 +68,7 @@ const AccountSettings = () => {
 
   const checkGoogleAuth = async (email) => {
     try {
-      const response = await fetch(`/api/auth/status?email=${encodeURIComponent(email)}`);
+      const response = await fetch(`${BackendURL}/api/auth/status?email=${encodeURIComponent(email)}`);
       const data = await response.json();
 
       if (data.success && data.authenticated) {
@@ -80,7 +82,7 @@ const AccountSettings = () => {
   const handleGoogleConnect = async () => {
     setGoogleLoading(true);
     try {
-      const response = await fetch('/api/auth/google');
+      const response = await fetch(`${BackendURL}/api/auth/google`);
       const data = await response.json();
 
       if (data.success && data.authUrl) {
@@ -101,7 +103,7 @@ const AccountSettings = () => {
     const email = localStorage.getItem('userEmail');
 
     try {
-      await fetch('/api/auth/logout', {
+      await fetch(`${BackendURL}/api/auth/logout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })

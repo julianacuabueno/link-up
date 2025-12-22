@@ -10,6 +10,8 @@ import {
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
+const BackendURL = "https://guno6rd8a7.execute-api.us-west-2.amazonaws.com";
+
 const UserProfile = ({ isCollapsed = false }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -43,7 +45,7 @@ const UserProfile = ({ isCollapsed = false }) => {
 
     const fetchUser = async () => {
       try {
-        const res = await fetch(`/api/auth/status?email=${encodeURIComponent(email)}`);
+        const res = await fetch(`${BackendURL}/api/auth/status?email=${encodeURIComponent(email)}`);
         const data = await res.json();
 
         if (data.success && data.authenticated && data.user) {
@@ -172,7 +174,7 @@ const UserProfile = ({ isCollapsed = false }) => {
             // Call backend to clear tokens
             if (email) {
               try {
-                await fetch('/api/auth/logout', {
+                await fetch(`${BackendURL}/api/auth/logout`, {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',
