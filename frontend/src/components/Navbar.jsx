@@ -37,7 +37,7 @@ const Navbar = () => {
 
   const mainMenuItems = [
     { name: 'Home', icon: <HomeIcon />, path: '/' },
-    { name: 'Event', icon: <EventIcon />, path: '/events' },
+    { name: 'Events', icon: <EventIcon />, path: '/events' },
     { name: 'Create', icon: <AddIcon />, path: '/create' },
   ];
 

@@ -150,7 +150,7 @@ const AccountSettings = () => {
 
   const inputStyles = {
     '& .MuiOutlinedInput-root': {
-      color: '#fff',
+      color: '#000',
       '& fieldset': {
         borderColor: '#4a4a5e',
       },
@@ -158,7 +158,7 @@ const AccountSettings = () => {
         borderColor: '#6a6a7e',
       },
       '&.Mui-focused fieldset': {
-        borderColor: '#4a90e2',
+        borderColor: '#386641',
       },
     },
     '& .MuiInputLabel-root': {
@@ -169,10 +169,10 @@ const AccountSettings = () => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
       <Box sx={{ flexGrow: 1 }}>
-        <Typography variant="h3" sx={{ color: '#fff', mb: 3, fontWeight: 600 }}>
+        <Typography variant="h3" sx={{ color: '#000', mb: 3, fontWeight: 600 }}>
           Account Settings
         </Typography>
-        <Typography variant="body1" sx={{ color: '#8e8ea0', mb: 4 }}>
+        <Typography variant="body1" sx={{ color: '#333', mb: 4 }}>
           Manage your account information and preferences
         </Typography>
 
@@ -191,18 +191,18 @@ const AccountSettings = () => {
         {/* Google Calendar Integration Section */}
         <Card
           sx={{
-            bgcolor: '#2a2a3e',
-            border: '1px solid #3a3a4e',
+            bgcolor: '#c5d4b2',
+            border: '1px solid #c5d4b2',
             borderRadius: 2,
             mb: 3,
             maxWidth: 700,
           }}
         >
           <CardContent>
-            <Typography variant="h6" sx={{ color: '#fff', mb: 2, fontWeight: 600 }}>
+            <Typography variant="h6" sx={{ color: '#000', mb: 2, fontWeight: 600 }}>
               Google Calendar Integration
             </Typography>
-            <Typography variant="body2" sx={{ color: '#8e8ea0', mb: 3 }}>
+            <Typography variant="body2" sx={{ color: '#333', mb: 3 }}>
               Connect your Google account to sync events with Google Calendar
             </Typography>
 
@@ -215,10 +215,10 @@ const AccountSettings = () => {
                     sx={{ width: 48, height: 48 }}
                   />
                   <Box>
-                    <Typography sx={{ color: '#fff', fontWeight: 600 }}>
+                    <Typography sx={{ color: '#000', fontWeight: 600 }}>
                       {googleUser.name}
                     </Typography>
-                    <Typography variant="body2" sx={{ color: '#8e8ea0' }}>
+                    <Typography variant="body2" sx={{ color: '#333' }}>
                       {googleUser.email}
                     </Typography>
                   </Box>
@@ -252,12 +252,12 @@ const AccountSettings = () => {
                 onClick={handleGoogleConnect}
                 disabled={googleLoading}
                 sx={{
-                  bgcolor: '#4285f4',
+                  bgcolor: '#386641',
                   color: '#fff',
                   textTransform: 'none',
                   fontWeight: 600,
                   '&:hover': {
-                    bgcolor: '#3367d6',
+                    bgcolor: '#2d4d30',
                   },
                 }}
               >
@@ -270,15 +270,15 @@ const AccountSettings = () => {
         {/* Profile Picture Section */}
         <Card
           sx={{
-            bgcolor: '#2a2a3e',
-            border: '1px solid #3a3a4e',
+            bgcolor: '#c5d4b2',
+            border: '1px solid #c5d4b2',
             borderRadius: 2,
             mb: 3,
             maxWidth: 700,
           }}
         >
           <CardContent>
-            <Typography variant="h6" sx={{ color: '#fff', mb: 3, fontWeight: 600 }}>
+            <Typography variant="h6" sx={{ color: '#000', mb: 3, fontWeight: 600 }}>
               Profile Picture
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
@@ -297,12 +297,12 @@ const AccountSettings = () => {
                 <Button
                   variant="contained"
                   sx={{
-                    bgcolor: '#4a90e2',
+                    bgcolor: '#386641',
                     color: '#fff',
                     textTransform: 'none',
                     mb: 1,
                     '&:hover': {
-                      bgcolor: '#357abd',
+                      bgcolor: '#2d4d30',
                     },
                   }}
                 >
@@ -319,15 +319,15 @@ const AccountSettings = () => {
         {/* Personal Information Section */}
         <Card
           sx={{
-            bgcolor: '#2a2a3e',
-            border: '1px solid #3a3a4e',
+            bgcolor: '#c5d4b2',
+            border: '1px solid #c5d4b2',
             borderRadius: 2,
             mb: 3,
             maxWidth: 700,
           }}
         >
           <CardContent>
-            <Typography variant="h6" sx={{ color: '#fff', mb: 3, fontWeight: 600 }}>
+            <Typography variant="h6" sx={{ color: '#000', mb: 3, fontWeight: 600 }}>
               Personal Information
             </Typography>
             <Stack spacing={3}>
@@ -401,15 +401,15 @@ const AccountSettings = () => {
         {/* Security Settings Section */}
         <Card
           sx={{
-            bgcolor: '#2a2a3e',
-            border: '1px solid #3a3a4e',
+            bgcolor: '#c5d4b2',
+            border: '1px solid #c5d4b2',
             borderRadius: 2,
             mb: 3,
             maxWidth: 700,
           }}
         >
           <CardContent>
-            <Typography variant="h6" sx={{ color: '#fff', mb: 3, fontWeight: 600 }}>
+            <Typography variant="h6" sx={{ color: '#000', mb: 3, fontWeight: 600 }}>
               Change Password
             </Typography>
             <Stack spacing={3}>
@@ -452,18 +452,18 @@ const AccountSettings = () => {
         {/* Account Management Section */}
         <Card
           sx={{
-            bgcolor: '#2a2a3e',
-            border: '1px solid #3a3a4e',
+            bgcolor: '#c5d4b2',
+            border: '1px solid #c5d4b2',
             borderRadius: 2,
             mb: 3,
             maxWidth: 700,
           }}
         >
           <CardContent>
-            <Typography variant="h6" sx={{ color: '#fff', mb: 2, fontWeight: 600 }}>
+            <Typography variant="h6" sx={{ color: '#000', mb: 2, fontWeight: 600 }}>
               Account Management
             </Typography>
-            <Typography variant="body2" sx={{ color: '#8e8ea0', mb: 2 }}>
+            <Typography variant="body2" sx={{ color: '#333', mb: 2 }}>
               Permanently delete your account and all associated data
             </Typography>
             <Button
@@ -490,13 +490,13 @@ const AccountSettings = () => {
             startIcon={<SaveIcon />}
             onClick={handleSave}
             sx={{
-              bgcolor: '#4a90e2',
+              bgcolor: '#386641',
               color: '#fff',
               textTransform: 'none',
               fontWeight: 600,
               px: 4,
               '&:hover': {
-                bgcolor: '#357abd',
+                bgcolor: '#2d4d30',
               },
             }}
           >

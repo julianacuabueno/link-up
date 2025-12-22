@@ -33,7 +33,7 @@ const About = () => {
           variant="h3"
           sx={{ mb: 3, fontWeight: 600, color: muiTheme.palette.text.primary, textAlign: 'center' }}
         >
-          About Link-Up
+          About Link-Up 🔗‍️
         </Typography>
         <Typography
           variant="body1"

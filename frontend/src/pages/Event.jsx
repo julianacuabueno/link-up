@@ -234,11 +234,11 @@ const Event = () => {
               '& .MuiTab-root': {
                 color: '#666',
                 '&.Mui-selected': {
-                  color: '#4a90e2',
+                  color: '#386641',
                 },
               },
               '& .MuiTabs-indicator': {
-                backgroundColor: '#4a90e2',
+                backgroundColor: '#386641',
               },
             }}
           >
@@ -263,11 +263,11 @@ const Event = () => {
                       color: calendarView === 'week' ? theme.palette.text.primary : '#4a90e2',
                       textTransform: 'none',
                       '&:hover': {
-                        bgcolor: calendarView === 'week' ? '#357abd' : 'rgba(74, 144, 226, 0.1)'
+                        bgcolor: calendarView === 'week' ? '#2d4d30' : 'rgba(56, 102, 65, 0.1)'
                       }
                     }}
                   >
-                    Week
+                    Weekly
                   </Button>
                   <Button
                     variant={calendarView === '2weeks' ? 'contained' : 'outlined'}
@@ -278,11 +278,11 @@ const Event = () => {
                       color: calendarView === '2weeks' ? theme.palette.text.primary : '#4a90e2',
                       textTransform: 'none',
                       '&:hover': {
-                        bgcolor: calendarView === '2weeks' ? '#357abd' : 'rgba(74, 144, 226, 0.1)'
+                        bgcolor: calendarView === '2weeks' ? '#2d4d30' : 'rgba(56, 102, 65, 0.1)'
                       }
                     }}
                   >
-                    2 Weeks
+                    Biweekly
                   </Button>
                   <Button
                     variant={calendarView === 'month' ? 'contained' : 'outlined'}
@@ -293,11 +293,11 @@ const Event = () => {
                       color: calendarView === 'month' ? theme.palette.text.primary : '#4a90e2',
                       textTransform: 'none',
                       '&:hover': {
-                        bgcolor: calendarView === 'month' ? '#357abd' : 'rgba(74, 144, 226, 0.1)'
+                        bgcolor: calendarView === 'month' ? '#2d4d30' : 'rgba(56, 102, 65, 0.1)'
                       }
                     }}
                   >
-                    Month
+                    Monthly
                   </Button>
                 </ButtonGroup>
                 
@@ -305,7 +305,7 @@ const Event = () => {
                   <Button
                     size="small"
                     onClick={() => navigateCalendar(-1)}
-                    sx={{ minWidth: 'auto', color: '#4a90e2' }}
+                    sx={{ minWidth: 'auto', color: '#386641' }}
                   >
                     <ChevronLeftIcon />
                   </Button>
@@ -318,7 +318,7 @@ const Event = () => {
                   <Button
                     size="small"
                     onClick={() => navigateCalendar(1)}
-                    sx={{ minWidth: 'auto', color: '#4a90e2' }}
+                    sx={{ minWidth: 'auto', color: '#386641' }}
                   >
                     <ChevronRightIcon />
                   </Button>
@@ -326,7 +326,7 @@ const Event = () => {
                     size="small"
                     startIcon={<TodayIcon />}
                     onClick={() => setCurrentDate(new Date())}
-                    sx={{ textTransform: 'none', color: '#4a90e2' }}
+                    sx={{ textTransform: 'none', color: '#386641' }}
                   >
                     Today
                   </Button>
@@ -340,12 +340,12 @@ const Event = () => {
                   onClick={() => fetchEvents(true)}
                   disabled={syncing}
                   sx={{
-                    borderColor: '#4a90e2',
-                    color: '#4a90e2',
+                    borderColor: '#386641',
+                    color: '#386641',
                     textTransform: 'none',
                     '&:hover': {
-                      borderColor: '#357abd',
-                      bgcolor: 'rgba(74, 144, 226, 0.1)'
+                      borderColor: '#2d4d30',
+                      bgcolor: 'rgba(56, 102, 65, 0.1)'
                     }
                   }}
                 >
@@ -408,7 +408,7 @@ const Event = () => {
                   weekDates.push(d);
                 }
                 return (
-                  <Box sx={{ display: 'flex', borderBottom: '1px solid #3a3a4e', py: 1.5 }}>
+                  <Box sx={{ display: 'flex', borderBottom: '1px solid #c5d4b2', py: 1.5 }}>
                     {weekDates.map((date, idx) => {
                       const isToday = date.toDateString() === new Date().toDateString();
                       const dayName = date.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
@@ -417,7 +417,7 @@ const Event = () => {
                           <Typography
                             variant="caption"
                             sx={{
-                              color: isToday ? '#4a90e2' : '#8e8ea0',
+                              color: isToday ? '#386641' : '#8e8ea0',
                               fontWeight: 500,
                               fontSize: '0.7rem',
                               letterSpacing: '0.5px'
@@ -430,7 +430,7 @@ const Event = () => {
                               width: 36,
                               height: 36,
                               borderRadius: '50%',
-                              bgcolor: isToday ? '#4a90e2' : 'transparent',
+                              bgcolor: isToday ? '#386641' : 'transparent',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
@@ -458,7 +458,7 @@ const Event = () => {
 
               {/* Day headers for 2weeks/month views */}
               {(calendarView === '2weeks' || calendarView === 'month') && (
-                <Box sx={{ display: 'flex', borderBottom: '1px solid #3a3a4e', py: 1 }}>
+                <Box sx={{ display: 'flex', borderBottom: '1px solid #c5d4b2', py: 1 }}>
                   {['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map((day) => (
                     <Box key={day} sx={{ flex: 1, textAlign: 'center' }}>
                       <Typography
@@ -526,10 +526,10 @@ const Event = () => {
                           sx={{
                             flex: '0 0 calc(100% / 7)',
                             width: 'calc(100% / 7)',
-                            borderRight: index < 6 ? '1px solid #2a2a3e' : 'none',
+                            borderRight: index < 6 ? '1px solid #d4c4a8' : 'none',
                             minHeight: 150,
                             p: 0.5,
-                            bgcolor: '#1a1a2e',
+                            bgcolor: '#f2e8cf',
                             cursor: dayEvents.length > 0 ? 'pointer' : 'default',
                             boxSizing: 'border-box',
                             '&:hover': {
@@ -621,7 +621,7 @@ const Event = () => {
                             width: 24,
                             height: 24,
                             borderRadius: '50%',
-                            bgcolor: isToday ? '#4a90e2' : 'transparent',
+                            bgcolor: isToday ? '#386641' : 'transparent',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -686,7 +686,7 @@ const Event = () => {
             {/* Next 5 Upcoming */}
             <Box sx={{ mt: 4 }}>
               <Typography variant="h6" sx={{ color: '#333', mb: 2, fontWeight: 600 }}>
-                Next 5 Upcoming
+                ⤷ Around the corner 
               </Typography>
               {getNextFiveEvents().length === 0 ? (
                 <Typography sx={{ color: theme.palette.text.primary }}>No upcoming events</Typography>
@@ -734,7 +734,7 @@ const Event = () => {
             ) : (
               <Box sx={{ mt: 4 }}>
                 <Typography variant="h6" sx={{ color: '#333', mb: 2, fontWeight: 600 }}>
-                  All Events
+                  ⤷ All Upcoming Events
                 </Typography>
                 <Stack spacing={3}>
                   {events.map((event) => (
@@ -746,7 +746,7 @@ const Event = () => {
                       borderRadius: 2,
                       transition: 'all 0.2s',
                       '&:hover': {
-                        borderColor: '#4a90e2',
+                        borderColor: '#386641',
                         transform: 'translateY(-2px)',
                       },
                     }}
@@ -886,7 +886,7 @@ const Event = () => {
                     borderColor: '#6a6a7e',
                   },
                   '&.Mui-focused fieldset': {
-                    borderColor: '#4a90e2',
+                    borderColor: '#386641',
                   },
                 },
                 '& .MuiInputLabel-root': {

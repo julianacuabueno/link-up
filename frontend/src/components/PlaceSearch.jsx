@@ -441,13 +441,13 @@ const PlaceSearch = ({
                         sx={{
                           fontSize: '0.75rem',
                           textTransform: 'none',
-                          bgcolor: '#2a2a3e',
+                          bgcolor: '#c5d4b2',
                           color: '#fff',
-                          border: '1px solid #3a3a4e',
+                          border: '1px solid #c5d4b2',
                           whiteSpace: 'nowrap',
                           '&:hover': {
-                            bgcolor: '#3a3a4e',
-                            borderColor: '#4a90e2',
+                            bgcolor: '#b8c9a3',
+                            borderColor: '#386641',
                           },
                         }}
                       >
