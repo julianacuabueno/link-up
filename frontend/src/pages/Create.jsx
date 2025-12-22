@@ -1,11 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Typography, Card, CardContent, TextField, Button, Stack, Alert, Snackbar } from '@mui/material';
+import { Box, Typography, Card, CardContent, TextField, Button, Stack, Alert, Snackbar, Tabs, Tab, Grid, Chip, CircularProgress } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import EventIcon from '@mui/icons-material/Event';
+import LocalDiningIcon from '@mui/icons-material/LocalDining';
+import MusicNoteIcon from '@mui/icons-material/MusicNote';
+import TheaterComedyIcon from '@mui/icons-material/TheaterComedy';
+import SportsBasketballIcon from '@mui/icons-material/SportsBasketball';
 import Footer from '../components/Footer';
 
 const Create = () => {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState(0);
+  const [categories, setCategories] = useState([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
   const [formData, setFormData] = useState({
     title: '',
     date: '',
@@ -19,6 +27,139 @@ const Create = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  // Map category names to icons
+  const getCategoryIcon = (categoryName, type) => {
+    const lowerName = categoryName?.toLowerCase() || '';
+    
+    // Ticketmaster icon mapping
+    if (type === 'ticketmaster') {
+      if (lowerName.includes('music')) return MusicNoteIcon;
+      if (lowerName.includes('sport')) return SportsBasketballIcon;
+      if (lowerName.includes('comedy') || lowerName.includes('theater')) return TheaterComedyIcon;
+      return EventIcon;
+    }
+    
+    // Yelp icon mapping
+    if (type === 'yelp') {
+      if (lowerName.includes('restaurant') || lowerName.includes('food')) return LocalDiningIcon;
+      return LocalDiningIcon;
+    }
+    
+    return EventIcon;
+  };
+
+  // Load categories from both Ticketmaster and Yelp
+  const loadAllCategories = async () => {
+    setLoadingCategories(true);
+    try {
+      const allCategories = [];
+      
+      // Fetch Ticketmaster categories
+      try {
+        const tmResponse = await fetch('/api/TicketMaster/search?keyword=&size=100&sort=date,asc', {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        const tmData = await tmResponse.json();
+        
+        console.log('Ticketmaster API Response:', tmData);
+        
+        if (tmData.success && tmData.events && tmData.events.length > 0) {
+          const tmCategories = Array.from(
+            new Map(
+              tmData.events
+                .flatMap(event => event.classifications || [])
+                .filter(classification => classification.segment?.name || classification.genre?.name)
+                .map(classification => {
+                  const name = classification.segment?.name || classification.genre?.name;
+                  return [name, { name, type: 'ticketmaster', icon: getCategoryIcon(name, 'ticketmaster') }];
+                })
+            ).values()
+          );
+          console.log('Ticketmaster categories found:', tmCategories.length);
+          allCategories.push(...tmCategories);
+        } else {
+          console.log('No Ticketmaster events found');
+        }
+      } catch (error) {
+        console.error('Error loading Ticketmaster categories:', error);
+      }
+      
+      // Fetch Yelp categories
+      try {
+        const yelpResponse = await fetch('/api/yelp/search?term=&location=New+York&limit=50', {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        const yelpData = await yelpResponse.json();
+        
+        console.log('Yelp API Response:', yelpData);
+        
+        if (yelpData.success && yelpData.businesses && yelpData.businesses.length > 0) {
+          const yelpCategories = Array.from(
+            new Map(
+              yelpData.businesses
+                .flatMap(business => business.categories || [])
+                .filter(category => category.title)
+                .map(category => {
+                  const name = category.title;
+                  return [name, { name, type: 'yelp', icon: getCategoryIcon(name, 'yelp') }];
+                })
+            ).values()
+          );
+          console.log('Yelp categories found:', yelpCategories.length);
+          allCategories.push(...yelpCategories);
+        } else {
+          console.log('No Yelp businesses found');
+        }
+      } catch (error) {
+        console.error('Error loading Yelp categories:', error);
+      }
+      
+      console.log('Total categories before deduplication:', allCategories.length);
+      
+      // Deduplicate categories by name (case-insensitive)
+      const uniqueMap = new Map();
+      allCategories.forEach(cat => {
+        const key = cat.name?.toLowerCase();
+        if (key && !uniqueMap.has(key)) {
+          uniqueMap.set(key, cat);
+        }
+      });
+      
+      const finalCategories = Array.from(uniqueMap.values());
+      console.log('Final unique categories:', finalCategories.length);
+      
+      setCategories(finalCategories);
+      
+      if (finalCategories.length === 0) {
+        setSnackbar({ open: true, message: 'No categories found', severity: 'info' });
+      }
+    } catch (error) {
+      console.error('Error loading categories:', error);
+      setSnackbar({ open: true, message: 'Failed to load categories', severity: 'error' });
+    } finally {
+      setLoadingCategories(false);
+    }
+  };
+
+  // Load categories on component mount
+  useEffect(() => {
+    loadAllCategories();
+  }, []);
+
+  // Handle category selection
+  const handleCategorySelect = (category) => {
+    // Navigate to Events page with category info
+    navigate('/events', {
+      state: {
+        categoryName: category.name,
+        categoryType: category.type,
+        activeTab: category.type === 'ticketmaster' ? 1 : 2
+      }
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -96,102 +237,192 @@ const Create = () => {
           Plan a new event and invite your friends
         </Typography>
 
-        <Card
-          sx={{
-            bgcolor: '#2a2a3e',
-            border: '1px solid #3a3a4e',
-            borderRadius: 2,
-            maxWidth: 600,
-          }}
-        >
-          <CardContent>
-            <form onSubmit={handleSubmit}>
-              <Stack spacing={3}>
-                <TextField
-                  label="Event Title"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleChange}
-                  variant="outlined"
-                  fullWidth
-                  required
-                  sx={textFieldSx}
-                />
+        {/* Tabs */}
+        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+          <Tabs
+            value={activeTab}
+            onChange={(event, newValue) => setActiveTab(newValue)}
+            sx={{
+              '& .MuiTab-root': {
+                color: '#8e8ea0',
+                '&.Mui-selected': {
+                  color: '#4a90e2',
+                },
+              },
+              '& .MuiTabs-indicator': {
+                backgroundColor: '#4a90e2',
+              },
+            }}
+          >
+            <Tab label="Browse Categories" />
+            <Tab label="Create Event" />
+          </Tabs>
+        </Box>
 
-                <TextField
-                  label="Date"
-                  name="date"
-                  type="date"
-                  value={formData.date}
-                  onChange={handleChange}
-                  variant="outlined"
-                  fullWidth
-                  required
-                  InputLabelProps={{ shrink: true }}
-                  sx={textFieldSx}
-                />
+        {/* Browse Categories Tab */}
+        {activeTab === 0 && (
+          <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', py: 3 }}>
+            <Typography variant="body1" sx={{ color: '#8e8ea0', mb: 3 }}>
+              Browse popular categories from Ticketmaster and Yelp. Click on any category to start creating an event!
+            </Typography>
+            
+            {loadingCategories ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexGrow: 1 }}>
+                <CircularProgress sx={{ color: '#4a90e2' }} />
+              </Box>
+            ) : categories.length > 0 ? (
+              <Grid container spacing={2}>
+                {categories.map((category, index) => (
+                  <Grid item xs={12} sm={6} md={3} lg={2.4} key={index}>
+                    <Card
+                      onClick={() => handleCategorySelect(category)}
+                      sx={{
+                        bgcolor: '#2a2a3e',
+                        border: '1px solid #3a3a4e',
+                        borderRadius: 2,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        p: 2,
+                        height: 100,
+                        minHeight: 100,
+                        transition: 'all 0.2s ease',
+                        '&:hover': {
+                          bgcolor: '#3a3a4e',
+                          borderColor: '#4a90e2',
+                          transform: 'translateY(-4px)',
+                          boxShadow: '0 4px 12px rgba(74, 144, 226, 0.2)',
+                        },
+                      }}
+                    >
+                      <Typography
+                        variant="subtitle2"
+                        sx={{
+                          color: '#fff',
+                          fontWeight: 600,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          textAlign: 'center',
+                        }}
+                      >
+                        {category.name}
+                      </Typography>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            ) : (
+              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexGrow: 1 }}>
+                <Typography sx={{ color: '#8e8ea0' }}>No categories found</Typography>
+              </Box>
+            )}
+          </Box>
+        )}
 
-                <TextField
-                  label="Time"
-                  name="time"
-                  type="time"
-                  value={formData.time}
-                  onChange={handleChange}
-                  variant="outlined"
-                  fullWidth
-                  required
-                  InputLabelProps={{ shrink: true }}
-                  sx={textFieldSx}
-                />
+        {/* Create Event Tab */}
+        {activeTab === 1 && (
+          <Card
+            sx={{
+              bgcolor: '#2a2a3e',
+              border: '1px solid #3a3a4e',
+              borderRadius: 2,
+              maxWidth: 600,
+            }}
+          >
+            <CardContent>
+              <form onSubmit={handleSubmit}>
+                <Stack spacing={3}>
+                  <TextField
+                    label="Event Title"
+                    name="title"
+                    value={formData.title}
+                    onChange={handleChange}
+                    variant="outlined"
+                    fullWidth
+                    required
+                    sx={textFieldSx}
+                  />
 
-                <TextField
-                  label="Location"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleChange}
-                  variant="outlined"
-                  fullWidth
-                  sx={textFieldSx}
-                />
+                  <TextField
+                    label="Date"
+                    name="date"
+                    type="date"
+                    value={formData.date}
+                    onChange={handleChange}
+                    variant="outlined"
+                    fullWidth
+                    required
+                    InputLabelProps={{ shrink: true }}
+                    sx={textFieldSx}
+                  />
 
-                <TextField
-                  label="Description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  variant="outlined"
-                  fullWidth
-                  multiline
-                  rows={4}
-                  sx={textFieldSx}
-                />
+                  <TextField
+                    label="Time"
+                    name="time"
+                    type="time"
+                    value={formData.time}
+                    onChange={handleChange}
+                    variant="outlined"
+                    fullWidth
+                    required
+                    InputLabelProps={{ shrink: true }}
+                    sx={textFieldSx}
+                  />
 
-                <Button
-                  type="submit"
-                  variant="contained"
-                  startIcon={<AddIcon />}
-                  fullWidth
-                  disabled={loading}
-                  sx={{
-                    bgcolor: '#4a90e2',
-                    color: '#fff',
-                    textTransform: 'none',
-                    fontWeight: 600,
-                    py: 1.5,
-                    '&:hover': {
-                      bgcolor: '#357abd',
-                    },
-                    '&:disabled': {
-                      bgcolor: '#4a4a5e',
-                    },
-                  }}
-                >
-                  {loading ? 'Creating...' : 'Create Event'}
-                </Button>
-              </Stack>
-            </form>
-          </CardContent>
-        </Card>
+                  <TextField
+                    label="Location"
+                    name="location"
+                    value={formData.location}
+                    onChange={handleChange}
+                    variant="outlined"
+                    fullWidth
+                    sx={textFieldSx}
+                  />
+
+                  <TextField
+                    label="Description"
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    variant="outlined"
+                    fullWidth
+                    multiline
+                    rows={4}
+                    sx={textFieldSx}
+                  />
+
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    startIcon={<AddIcon />}
+                    fullWidth
+                    disabled={loading}
+                    sx={{
+                      bgcolor: '#4a90e2',
+                      color: '#fff',
+                      textTransform: 'none',
+                      fontWeight: 600,
+                      py: 1.5,
+                      '&:hover': {
+                        bgcolor: '#357abd',
+                      },
+                      '&:disabled': {
+                        bgcolor: '#4a4a5e',
+                      },
+                    }}
+                  >
+                    {loading ? 'Creating...' : 'Create Event'}
+                  </Button>
+                </Stack>
+              </form>
+            </CardContent>
+          </Card>
+        )}
       </Box>
 
       <Snackbar

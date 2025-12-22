@@ -148,6 +148,9 @@ const Navbar = () => {
             sx={{
               borderRadius: 1.5,
               mb: 0.5,
+              width: "fit-content",
+              px: 1.5,
+              py: 1,
               "& .MuiListItemText-primary": {
                 color: "black",
               },
@@ -207,6 +210,9 @@ const Navbar = () => {
               sx={{
                 borderRadius: 1.5,
                 mb: 0.5,
+                width: "fit-content",
+                px: 1.5,
+                py: 1,
                 "& .MuiListItemText-primary": {
                   color: "black",
                 },

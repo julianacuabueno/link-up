@@ -13,7 +13,11 @@ import {
   Rating,
   Divider,
   Collapse,
-  Button
+  Button,
+  Grid,
+  Card,
+  CardContent,
+  CardActions
 } from '@mui/material';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import ClearIcon from '@mui/icons-material/Clear';
@@ -28,13 +32,25 @@ const BackendURL = "https://guno6rd8a7.execute-api.us-west-2.amazonaws.com";
  * PlaceSearch component that integrates with Yelp API for location search
  * Displays places with reviews and ratings
  * @param {Object} props - Component props
- * @param {string} props.value - Current location value
- * @param {function} props.onChange - Callback when location changes
- * @param {string} props.label - Label for the text field
- * @param {Object} props.sx - Additional styles for the text field
+ * @param {string} props.searchTerm - Search term (e.g., "pizza")
+ * @param {function} props.onSearchChange - Callback when search term changes
+ * @param {string} props.location - Location value (e.g., "New York")
+ * @param {function} props.onLocationChange - Callback when location changes
+ * @param {string} props.searchLabel - Label for the search field
+ * @param {string} props.locationLabel - Label for the location field
+ * @param {Object} props.sx - Additional styles for the text fields
  */
-const PlaceSearch = ({ value, onChange, label = "Search for places", sx = {} }) => {
-  const [searchTerm, setSearchTerm] = useState(value || '');
+const PlaceSearch = ({ 
+  searchTerm = '', 
+  onSearchChange, 
+  location = '', 
+  onLocationChange,
+  searchLabel = "Search for places",
+  locationLabel = "Location",
+  sx = {} 
+}) => {
+  const [search, setSearch] = useState(searchTerm || '');
+  const [loc, setLoc] = useState(location || '');
   const [places, setPlaces] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
@@ -43,17 +59,22 @@ const PlaceSearch = ({ value, onChange, label = "Search for places", sx = {} }) 
   const [placeDetails, setPlaceDetails] = useState({});
   const inputRef = useRef(null);
 
-  // Update search term when value prop changes
+  // Update search term when prop changes
   useEffect(() => {
-    setSearchTerm(value || '');
-  }, [value]);
+    setSearch(searchTerm || '');
+  }, [searchTerm]);
+
+  // Update location when prop changes
+  useEffect(() => {
+    setLoc(location || '');
+  }, [location]);
 
   /**
    * Searches for places using the Yelp API
-   * Supports queries like "pizza in New York" or "bars near me"
    * @param {string} term - Search term for places
+   * @param {string} searchLocation - Location for search
    */
-  const searchPlaces = async (term) => {
+  const searchPlaces = async (term, searchLocation) => {
     if (!term.trim() || term.length < 2) {
       setPlaces([]);
       setShowResults(false);
@@ -62,38 +83,14 @@ const PlaceSearch = ({ value, onChange, label = "Search for places", sx = {} }) 
 
     setLoading(true);
     try {
-      // Parse the search term to extract location
-      // Support queries like "pizza in New York", "bars near San Francisco", etc.
-      const locationKeywords = [' in ', ' near ', ' at ', ' around ', ' by '];
-      let searchTerm = term;
-      let location = '';
-
-      // Find the first location keyword and split the query
-      for (const keyword of locationKeywords) {
-        const index = term.toLowerCase().indexOf(keyword);
-        if (index !== -1) {
-          searchTerm = term.substring(0, index).trim();
-          location = term.substring(index + keyword.length).trim();
-          break;
-        }
-      }
-
-      // If no location keyword found, use the entire term as search term
-      // and try to get user's location or use a default
-      if (!location) {
-        searchTerm = term;
-        // For location-based searches, we could get user's geolocation
-        // For now, we'll let Yelp handle locationless searches
-      }
-
       // Build query parameters
       const params = new URLSearchParams();
-      params.append('term', searchTerm);
+      params.append('term', term);
       params.append('limit', '10');
       params.append('sort_by', 'rating');
 
-      if (location) {
-        params.append('location', location);
+      if (searchLocation && searchLocation.trim()) {
+        params.append('location', searchLocation);
       }
 
       const response = await fetch(`${BackendURL}/api/yelp/search?${params}`, {
@@ -124,11 +121,11 @@ const PlaceSearch = ({ value, onChange, label = "Search for places", sx = {} }) 
   // Debounced search
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      searchPlaces(searchTerm);
+      searchPlaces(search, loc);
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [searchTerm]);
+  }, [search, loc]);
 
   /**
    * Handles selection of a place from search results
@@ -136,21 +133,33 @@ const PlaceSearch = ({ value, onChange, label = "Search for places", sx = {} }) 
    */
   const handleSelectPlace = (business) => {
     const locationString = `${business.name}, ${business.location.address1 || ''} ${business.location.city}, ${business.location.state} ${business.location.zip_code || ''}`.trim();
-    setSearchTerm(locationString);
-    onChange(locationString);
+    setSearch('');
+    setLoc('');
+    if (onSearchChange) onSearchChange('');
+    if (onLocationChange) onLocationChange('');
     setShowResults(false);
     setSelectedIndex(-1);
     setExpandedPlace(null);
   };
 
   /**
-   * Handles input change
-   * @param {Event} e - Input change event
+   * Handles search input change
    */
-  const handleInputChange = (e) => {
+  const handleSearchChange = (e) => {
     const newValue = e.target.value;
-    setSearchTerm(newValue);
-    onChange(newValue);
+    setSearch(newValue);
+    if (onSearchChange) onSearchChange(newValue);
+    setSelectedIndex(-1);
+    setExpandedPlace(null);
+  };
+
+  /**
+   * Handles location input change
+   */
+  const handleLocationChange = (e) => {
+    const newValue = e.target.value;
+    setLoc(newValue);
+    if (onLocationChange) onLocationChange(newValue);
     setSelectedIndex(-1);
     setExpandedPlace(null);
   };
@@ -228,8 +237,10 @@ const PlaceSearch = ({ value, onChange, label = "Search for places", sx = {} }) 
    * Clears the search input
    */
   const handleClear = () => {
-    setSearchTerm('');
-    onChange('');
+    setSearch('');
+    setLoc('');
+    if (onSearchChange) onSearchChange('');
+    if (onLocationChange) onLocationChange('');
     setPlaces([]);
     setShowResults(false);
     setSelectedIndex(-1);
@@ -250,84 +261,89 @@ const PlaceSearch = ({ value, onChange, label = "Search for places", sx = {} }) 
 
   return (
     <Box sx={{ position: 'relative', width: '100%' }}>
-      <TextField
-        inputRef={inputRef}
-        label={label}
-        value={searchTerm}
-        onChange={handleInputChange}
-        onKeyDown={handleKeyDown}
-        onFocus={() => searchTerm.length >= 2 && setShowResults(true)}
-        onBlur={() => {
-          // Delay hiding results to allow for clicks
-          setTimeout(() => setShowResults(false), 200);
-        }}
-        variant="outlined"
-        fullWidth
-        sx={sx}
-        InputProps={{
-          startAdornment: <SearchIcon sx={{ color: '#8e8ea0', mr: 1 }} />,
-          endAdornment: (
-            <>
-              {loading && <CircularProgress size={20} sx={{ color: '#8e8ea0' }} />}
-              {searchTerm && (
-                <IconButton size="small" onClick={handleClear} sx={{ color: '#8e8ea0' }}>
-                  <ClearIcon fontSize="small" />
-                </IconButton>
-              )}
-            </>
-          ),
-        }}
-        placeholder="Search for places (e.g., 'pizza in New York' or 'bars near me')"
-      />
+      <Box sx={{ display: 'flex', gap: 2, width: '100%' }}>
+        <TextField
+          inputRef={inputRef}
+          label={searchLabel}
+          value={search}
+          onChange={handleSearchChange}
+          onFocus={() => search.length >= 2 && setShowResults(true)}
+          onBlur={() => {
+            setTimeout(() => setShowResults(false), 200);
+          }}
+          variant="outlined"
+          fullWidth
+          sx={{ ...sx, flex: 1 }}
+          InputProps={{
+            startAdornment: <SearchIcon sx={{ color: '#8e8ea0', mr: 1 }} />,
+            endAdornment: (
+              <>
+                {loading && <CircularProgress size={20} sx={{ color: '#8e8ea0' }} />}
+                {search && (
+                  <IconButton size="small" onClick={handleClear} sx={{ color: '#8e8ea0' }}>
+                    <ClearIcon fontSize="small" />
+                  </IconButton>
+                )}
+              </>
+            ),
+          }}
+          placeholder="e.g., 'pizza', 'bars', 'restaurants'"
+        />
+        <TextField
+          label={locationLabel}
+          value={loc}
+          onChange={handleLocationChange}
+          onFocus={() => search.length >= 2 && setShowResults(true)}
+          variant="outlined"
+          sx={{ ...sx, flex: 1.5 }}
+          InputProps={{
+            startAdornment: <LocationOnIcon sx={{ color: '#8e8ea0', mr: 1 }} />,
+          }}
+          placeholder="e.g., 'New York', 'San Francisco'"
+        />
+      </Box>
 
       {/* Search Results */}
       {showResults && places.length > 0 && (
-        <Paper
-          sx={{
-            position: 'absolute',
-            top: '100%',
-            left: 0,
-            right: 0,
-            zIndex: 1000,
-            maxHeight: 600,
-            overflow: 'auto',
-            mt: 0.5,
-            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-          }}
-        >
-          <List dense>
+        <Box sx={{ mt: 3 }}>
+          <Typography variant="h6" sx={{ mb: 2, color: '#000' }}>
+            Search Results ({places.length})
+          </Typography>
+          <Grid container spacing={3}>
             {places.map((place, index) => (
-              <Box key={place.id}>
-                <ListItem
-                  button
-                  onClick={() => handleSelectPlace(place)}
+              <Grid item xs={12} md={4} key={place.id}>
+                <Card
                   sx={{
-                    bgcolor: selectedIndex === index ? '#f5f5f5' : 'transparent',
-                    '&:hover': {
-                      bgcolor: '#f0f0f0',
-                    },
+                    height: '100%',
+                    display: 'flex',
                     flexDirection: 'column',
-                    alignItems: 'flex-start',
-                    py: 2,
+                    cursor: 'pointer',
+                    bgcolor: selectedIndex === index ? '#f5f5f5' : '#fff',
+                    border: '1px solid #e0e0e0',
+                    '&:hover': {
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                      transform: 'translateY(-2px)',
+                      transition: 'all 0.2s ease-in-out',
+                    },
                   }}
+                  onClick={() => handleSelectPlace(place)}
                 >
-                  <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', mb: 1 }}>
-                    <LocationOnIcon sx={{ mr: 1, color: '#8e8ea0', fontSize: 20 }} />
-                    <ListItemText
-                      primary={
-                        <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                  <CardContent sx={{ flexGrow: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 1 }}>
+                      <LocationOnIcon sx={{ mr: 1, color: '#8e8ea0', fontSize: 20, mt: 0.5 }} />
+                      <Box sx={{ flexGrow: 1 }}>
+                        <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '1rem', mb: 0.5 }}>
                           {place.name}
                         </Typography>
-                      }
-                      secondary={
-                        <Typography variant="body2" sx={{ color: '#8e8ea0' }}>
+                        <Typography variant="body2" sx={{ color: '#8e8ea0', fontSize: '0.85rem' }}>
                           {place.location.address1 && `${place.location.address1}, `}
                           {place.location.city}, {place.location.state}
                           {place.location.zip_code && ` ${place.location.zip_code}`}
                         </Typography>
-                      }
-                    />
-                    <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
+                      </Box>
+                    </Box>
+
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
                       <Rating
                         value={place.rating}
                         readOnly
@@ -342,33 +358,35 @@ const PlaceSearch = ({ value, onChange, label = "Search for places", sx = {} }) 
                         <Chip
                           label={formatPrice(place.price)}
                           size="small"
-                          sx={{ fontSize: '0.7rem' }}
+                          sx={{ fontSize: '0.7rem', ml: 'auto' }}
                         />
                       )}
                     </Box>
-                  </Box>
 
-                  <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 1 }}>
-                    {place.categories?.slice(0, 3).map((category, catIndex) => (
-                      <Chip
-                        key={catIndex}
-                        label={category.title}
-                        size="small"
-                        variant="outlined"
-                        sx={{ fontSize: '0.7rem' }}
-                      />
-                    ))}
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 1 }}>
+                      {place.categories?.slice(0, 3).map((category, catIndex) => (
+                        <Chip
+                          key={catIndex}
+                          label={category.title}
+                          size="small"
+                          variant="outlined"
+                          sx={{ fontSize: '0.65rem' }}
+                        />
+                      ))}
+                    </Box>
+                  </CardContent>
+
+                  <CardActions sx={{ p: 2, pt: 0 }}>
                     <Button
+                      fullWidth
                       size="small"
                       onClick={(e) => {
                         e.stopPropagation();
                         togglePlaceExpansion(place.id);
                       }}
                       sx={{
-                        ml: 'auto',
-                        minWidth: 'auto',
-                        px: 1,
-                        fontSize: '0.7rem'
+                        fontSize: '0.75rem',
+                        textTransform: 'none',
                       }}
                     >
                       {expandedPlace === place.id ? (
@@ -377,52 +395,50 @@ const PlaceSearch = ({ value, onChange, label = "Search for places", sx = {} }) 
                         <>Show Reviews <ExpandMoreIcon fontSize="small" /></>
                       )}
                     </Button>
-                  </Box>
-                </ListItem>
+                  </CardActions>
 
-                {/* Expanded reviews section */}
-                <Collapse in={expandedPlace === place.id}>
-                  <Box sx={{ px: 2, pb: 2, bgcolor: '#fafafa' }}>
-                    {placeDetails[place.id] ? (
-                      <Box>
-                        <Typography variant="h6" sx={{ mb: 1, fontSize: '0.9rem' }}>
-                          Recent Reviews
-                        </Typography>
-                        {placeDetails[place.id].reviews?.map((review, reviewIndex) => (
-                          <Box key={reviewIndex} sx={{ mb: 2, p: 1, bgcolor: 'white', borderRadius: 1 }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                              <Rating value={review.rating} readOnly size="small" sx={{ color: '#ff6b35' }} />
-                              <Typography variant="body2" sx={{ ml: 1, color: '#666' }}>
-                                by {review.user.name}
+                  {/* Expanded reviews section */}
+                  <Collapse in={expandedPlace === place.id}>
+                    <Box sx={{ px: 2, pb: 2, bgcolor: '#fafafa', borderTop: '1px solid #e0e0e0' }}>
+                      {placeDetails[place.id] ? (
+                        <Box>
+                          <Typography variant="subtitle2" sx={{ mb: 1, mt: 1, fontWeight: 600 }}>
+                            Recent Reviews
+                          </Typography>
+                          {placeDetails[place.id].reviews?.map((review, reviewIndex) => (
+                            <Box key={reviewIndex} sx={{ mb: 1.5, p: 1.5, bgcolor: 'white', borderRadius: 1 }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                                <Rating value={review.rating} readOnly size="small" sx={{ color: '#ff6b35' }} />
+                                <Typography variant="caption" sx={{ ml: 1, color: '#666' }}>
+                                  by {review.user.name}
+                                </Typography>
+                              </Box>
+                              <Typography variant="body2" sx={{ fontStyle: 'italic', fontSize: '0.8rem' }}>
+                                "{review.text}"
                               </Typography>
                             </Box>
-                            <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
-                              "{review.text}"
+                          ))}
+                          {(!placeDetails[place.id].reviews || placeDetails[place.id].reviews.length === 0) && (
+                            <Typography variant="body2" sx={{ color: '#666', fontStyle: 'italic', fontSize: '0.8rem' }}>
+                              No reviews available
                             </Typography>
-                          </Box>
-                        ))}
-                        {(!placeDetails[place.id].reviews || placeDetails[place.id].reviews.length === 0) && (
-                          <Typography variant="body2" sx={{ color: '#666', fontStyle: 'italic' }}>
-                            No reviews available
+                          )}
+                        </Box>
+                      ) : (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 2 }}>
+                          <CircularProgress size={20} />
+                          <Typography variant="body2" sx={{ ml: 1, color: '#666' }}>
+                            Loading reviews...
                           </Typography>
-                        )}
-                      </Box>
-                    ) : (
-                      <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
-                        <CircularProgress size={20} />
-                        <Typography variant="body2" sx={{ ml: 1, color: '#666' }}>
-                          Loading reviews...
-                        </Typography>
-                      </Box>
-                    )}
-                  </Box>
-                </Collapse>
-
-                {index < places.length - 1 && <Divider />}
-              </Box>
+                        </Box>
+                      )}
+                    </Box>
+                  </Collapse>
+                </Card>
+              </Grid>
             ))}
-          </List>
-        </Paper>
+          </Grid>
+        </Box>
       )}
     </Box>
   );

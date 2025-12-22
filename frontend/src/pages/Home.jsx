@@ -94,7 +94,7 @@ const Home = () => {
         </Typography>
 
         <Grid container spacing={3}>
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12}>
             <Card
               sx={{
                 bgcolor: '#2a2a3e',
@@ -108,44 +108,6 @@ const Home = () => {
                 </Typography>
                 <Typography variant="body2" sx={{ color: '#8e8ea0' }}>
                   You have {upcomingEvents.length} event{upcomingEvents.length !== 1 ? 's' : ''} coming up this week
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid item xs={12} md={4}>
-            <Card
-              sx={{
-                bgcolor: '#2a2a3e',
-                border: '1px solid #3a3a4e',
-                borderRadius: 2,
-              }}
-            >
-              <CardContent>
-                <Typography variant="h6" sx={{ color: '#fff', mb: 1, fontWeight: 600 }}>
-                  Quick Actions
-                </Typography>
-                <Typography variant="body2" sx={{ color: '#8e8ea0' }}>
-                  Create a new event or invite friends
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid item xs={12} md={4}>
-            <Card
-              sx={{
-                bgcolor: '#2a2a3e',
-                border: '1px solid #3a3a4e',
-                borderRadius: 2,
-              }}
-            >
-              <CardContent>
-                <Typography variant="h6" sx={{ color: '#fff', mb: 1, fontWeight: 600 }}>
-                  Google Calendar
-                </Typography>
-                <Typography variant="body2" sx={{ color: '#8e8ea0' }}>
-                  {userEmail ? `Connected as ${userEmail}` : 'Connect to sync events'}
                 </Typography>
               </CardContent>
             </Card>
