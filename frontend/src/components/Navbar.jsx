@@ -229,6 +229,7 @@ const Navbar = () => {
               <ListItemIcon
                 sx={{
                   minWidth: 40,
+                  justifyContent: isCollapsed ? "center" : "flex-start",
                   "&.MuiListItemIcon-root": {
                     color: "black",
                   },
@@ -236,20 +237,22 @@ const Navbar = () => {
               >
                 {item.icon}
               </ListItemIcon>
-              <ListItemText
-                primary={item.name}
-                primaryTypographyProps={{
-                  fontSize: "0.95rem",
-                  fontWeight: isSelected(item.path) ? 600 : 400,
-                }}
-              />
+              {!isCollapsed && (
+                <ListItemText
+                  primary={item.name}
+                  primaryTypographyProps={{
+                    fontSize: "0.95rem",
+                    fontWeight: isSelected(item.path) ? 600 : 400,
+                  }}
+                />
+              )}
             </ListItemButton>
           ))}
         </Box>
       </List>
 
       {/* User Profile Section */}
-      <UserProfile />
+      <UserProfile isCollapsed={isCollapsed} />
     </Drawer>
   );
 };
