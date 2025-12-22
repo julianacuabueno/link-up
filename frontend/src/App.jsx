@@ -10,17 +10,19 @@ import About from './pages/About'
 import Feedback from './pages/Feedback'
 import AccountSettings from './pages/AccountSettings'
 import Login from './pages/Login'
+import Signup from './pages/Signup'
 
 import './App.css'
 
 const AppLayout = () => {
   const location = useLocation();
-  const isLoginPage = location.pathname === '/login';
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
 
-  if (isLoginPage) {
+  if (isAuthPage) {
     return (
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
       </Routes>
     );
   }

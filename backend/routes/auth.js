@@ -176,6 +176,118 @@ router.get('/status', async (req, res) => {
   }
 });
 
+// POST /api/auth/login - Authenticate user with email/password
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  // Validate required fields
+  if (!email || !password) {
+    return res.status(400).json({
+      success: false,
+      message: 'Email and password are required'
+    });
+  }
+
+  try {
+    // Look up user by email
+    const result = await docClient.send(new GetCommand({
+      TableName: TABLES.USERS,
+      Key: { email }
+    }));
+
+    const user = result.Item;
+
+    // Check if user exists
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password'
+      });
+    }
+
+    // Check password (plaintext comparison - use bcrypt in production)
+    if (user.password !== password) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password'
+      });
+    }
+
+    // Success - return user info (without password)
+    res.json({
+      success: true,
+      message: 'Login successful',
+      user: {
+        email: user.email,
+        name: user.name
+      }
+    });
+  } catch (error) {
+    console.error('Error during login:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error during login'
+    });
+  }
+});
+
+// POST /api/auth/signup - Create new user account
+router.post('/signup', async (req, res) => {
+  const { email, name, password } = req.body;
+
+  // Validate required fields
+  if (!email || !name || !password) {
+    return res.status(400).json({
+      success: false,
+      message: 'Email, name, and password are required'
+    });
+  }
+
+  try {
+    // Check if user already exists
+    const existingUser = await docClient.send(new GetCommand({
+      TableName: TABLES.USERS,
+      Key: { email }
+    }));
+
+    if (existingUser.Item) {
+      return res.status(400).json({
+        success: false,
+        message: 'An account with this email already exists'
+      });
+    }
+
+    // Create new user
+    const newUser = {
+      email,
+      name,
+      password, // Note: plaintext for simplicity - use bcrypt in production
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
+    await docClient.send(new PutCommand({
+      TableName: TABLES.USERS,
+      Item: newUser
+    }));
+
+    res.json({
+      success: true,
+      message: 'Account created successfully',
+      user: {
+        email: newUser.email,
+        name: newUser.name
+      }
+    });
+  } catch (error) {
+    console.error('Error during signup:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error creating account'
+    });
+  }
+});
+
 // POST /api/auth/logout - Clear user tokens
 router.post('/logout', async (req, res) => {
   const { email } = req.body;

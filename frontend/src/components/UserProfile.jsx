@@ -165,8 +165,26 @@ const UserProfile = ({ isCollapsed = false }) => {
           Account Settings
         </MenuItem>
         <MenuItem
-          onClick={() => {
+          onClick={async () => {
             handleClose();
+            const email = localStorage.getItem('userEmail');
+
+            // Call backend to clear tokens
+            if (email) {
+              try {
+                await fetch('/api/auth/logout', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ email }),
+                });
+              } catch (err) {
+                console.error('Error during logout:', err);
+              }
+            }
+
+            // Clear local storage and redirect
             localStorage.removeItem('userEmail');
             localStorage.removeItem('isLoggedIn');
             setUser(null);
