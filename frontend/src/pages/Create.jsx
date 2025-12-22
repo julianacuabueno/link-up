@@ -9,6 +9,8 @@ import TheaterComedyIcon from '@mui/icons-material/TheaterComedy';
 import SportsBasketballIcon from '@mui/icons-material/SportsBasketball';
 import Footer from '../components/Footer';
 
+const BackendURL = "https://guno6rd8a7.execute-api.us-west-2.amazonaws.com";
+
 const Create = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
@@ -58,7 +60,7 @@ const Create = () => {
       
       // Fetch Ticketmaster categories
       try {
-        const tmResponse = await fetch('/api/TicketMaster/search?keyword=&size=100&sort=date,asc', {
+        const tmResponse = await fetch(`${BackendURL}/api/TicketMaster/search?keyword=&size=100&sort=date,asc`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
         });
@@ -89,7 +91,7 @@ const Create = () => {
       
       // Fetch Yelp categories
       try {
-        const yelpResponse = await fetch('/api/yelp/search?term=&location=New+York&limit=50', {
+        const yelpResponse = await fetch(`${BackendURL}/api/yelp/search?term=&location=New+York&limit=50`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
         });
@@ -129,9 +131,10 @@ const Create = () => {
         }
       });
       
-      const finalCategories = Array.from(uniqueMap.values());
+      const finalCategories = Array.from(uniqueMap.values())
+        .sort((a, b) => a.name.localeCompare(b.name));
       console.log('Final unique categories:', finalCategories.length);
-      
+
       setCategories(finalCategories);
       
       if (finalCategories.length === 0) {
@@ -178,7 +181,7 @@ const Create = () => {
 
       console.log('Creating event with data:', { ...formData, email: userEmail });
 
-      const response = await fetch('/api/calendar/events', {
+      const response = await fetch(`${BackendURL}/api/calendar/events`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Box, Typography, Card, CardContent, Stack, Chip, CircularProgress, Button, Tabs, Tab, ButtonGroup, Grid, Dialog, DialogTitle, DialogContent, IconButton, Divider } from '@mui/material';
+import { Box, Typography, Card, CardContent, Stack, Chip, CircularProgress, Button, Tabs, Tab, ButtonGroup, Dialog, DialogTitle, DialogContent, IconButton, Divider } from '@mui/material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import TodayIcon from '@mui/icons-material/Today';
@@ -68,7 +68,7 @@ const Event = () => {
 
     try {
       const params = userEmail ? `?email=${encodeURIComponent(userEmail)}` : '';
-      const response = await fetch(`/api/calendar/events/${eventId}${params}`, {
+      const response = await fetch(`${BackendURL}/api/calendar/events/${eventId}${params}`, {
         method: 'DELETE'
       });
 
@@ -208,7 +208,7 @@ const Event = () => {
             onChange={(event, newValue) => setActiveTab(newValue)}
             sx={{
               '& .MuiTab-root': {
-                color: '#8e8ea0',
+                color: '#666',
                 '&.Mui-selected': {
                   color: '#4a90e2',
                 },
@@ -285,7 +285,7 @@ const Event = () => {
                   >
                     <ChevronLeftIcon />
                   </Button>
-                  <Typography variant="subtitle1" sx={{ color: '#fff', minWidth: 200, textAlign: 'center', fontWeight: 600 }}>
+                  <Typography variant="subtitle1" sx={{ color: '#333', minWidth: 200, textAlign: 'center', fontWeight: 600 }}>
                     {calendarView === 'month' 
                       ? currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
                       : `${getDateRange().start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${getDateRange().end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
@@ -366,31 +366,93 @@ const Event = () => {
               <Typography sx={{ color: '#f44336', mb: 2 }}>{error}</Typography>
             )}
 
-            {/* Calendar Grid */}
-            <Box>
-              {/* Show day headers only for 2weeks and month views */}
+            {/* Calendar Grid - Google Calendar Style */}
+            <Box sx={{
+              border: '1px solid #3a3a4e',
+              borderRadius: 2,
+              overflow: 'hidden',
+              bgcolor: '#1a1a2e'
+            }}>
+              {/* Header row with day names and date numbers */}
+              {calendarView === 'week' && (() => {
+                const { start } = getDateRange();
+                const weekDates = [];
+                for (let i = 0; i < 7; i++) {
+                  const d = new Date(start);
+                  d.setDate(d.getDate() + i);
+                  weekDates.push(d);
+                }
+                return (
+                  <Box sx={{ display: 'flex', borderBottom: '1px solid #3a3a4e', py: 1.5 }}>
+                    {weekDates.map((date, idx) => {
+                      const isToday = date.toDateString() === new Date().toDateString();
+                      const dayName = date.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
+                      return (
+                        <Box key={idx} sx={{ flex: 1, textAlign: 'center' }}>
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              color: isToday ? '#4a90e2' : '#8e8ea0',
+                              fontWeight: 500,
+                              fontSize: '0.7rem',
+                              letterSpacing: '0.5px'
+                            }}
+                          >
+                            {dayName}
+                          </Typography>
+                          <Box
+                            sx={{
+                              width: 36,
+                              height: 36,
+                              borderRadius: '50%',
+                              bgcolor: isToday ? '#4a90e2' : 'transparent',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              mx: 'auto',
+                              mt: 0.5
+                            }}
+                          >
+                            <Typography
+                              variant="h6"
+                              sx={{
+                                color: isToday ? '#fff' : '#e0e0e0',
+                                fontWeight: isToday ? 600 : 400,
+                                fontSize: '1.1rem'
+                              }}
+                            >
+                              {date.getDate()}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      );
+                    })}
+                  </Box>
+                );
+              })()}
+
+              {/* Day headers for 2weeks/month views */}
               {(calendarView === '2weeks' || calendarView === 'month') && (
-                <Grid container spacing={1} sx={{ mb: 2 }}>
-                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-                    <Grid item xs={12/7} key={day}>
+                <Box sx={{ display: 'flex', borderBottom: '1px solid #3a3a4e', py: 1 }}>
+                  {['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map((day) => (
+                    <Box key={day} sx={{ flex: 1, textAlign: 'center' }}>
                       <Typography
                         variant="caption"
                         sx={{
                           color: '#8e8ea0',
-                          fontWeight: 600,
-                          display: 'block',
-                          textAlign: 'center',
-                          py: 1
+                          fontWeight: 500,
+                          fontSize: '0.7rem',
+                          letterSpacing: '0.5px'
                         }}
                       >
                         {day}
                       </Typography>
-                    </Grid>
+                    </Box>
                   ))}
-                </Grid>
+                </Box>
               )}
-              
-              <Grid container spacing={1}>
+
+              <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
                 {(() => {
                   const { start, end, days } = getDateRange();
                   const dateArray = [];
@@ -428,140 +490,46 @@ const Event = () => {
                     const dayEvents = getEventsForDate(date);
                     const isToday = date.toDateString() === new Date().toDateString();
                     
-                    // For week view, show date inline with day name
+                    // For week view - events only (dates are in header)
                     if (calendarView === 'week') {
+                      // Event colors for variety
+                      const eventColors = ['#e57373', '#81c784', '#64b5f6', '#ffb74d', '#ba68c8', '#4db6ac'];
+
                       return (
-                        <Grid item xs={12/7} key={index}>
-                          <Box sx={{ textAlign: 'center', mb: 1 }}>
-                            <Typography
-                              variant="caption"
-                              sx={{
-                                color: '#8e8ea0',
-                                fontWeight: 600,
-                                display: 'block',
-                              }}
-                            >
-                              {date.toLocaleDateString('en-US', { weekday: 'short' })}
-                            </Typography>
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                color: isToday ? '#4a90e2' : '#fff',
-                                fontWeight: isToday ? 700 : 600,
-                              }}
-                            >
-                              {date.getDate()}
-                            </Typography>
-                          </Box>
-                          <Card
-                            sx={{
-                              bgcolor: '#2a2a3e',
-                              border: isToday ? '2px solid #4a90e2' : '1px solid #3a3a4e',
-                              borderRadius: 2,
-                              minHeight: 120,
-                              p: 1,
-                              cursor: dayEvents.length > 0 ? 'pointer' : 'default',
-                              transition: 'all 0.2s',
-                              '&:hover': {
-                                borderColor: dayEvents.length > 0 ? '#4a90e2' : '#3a3a4e',
-                                transform: dayEvents.length > 0 ? 'translateY(-2px)' : 'none',
-                              },
-                            }}
-                            onClick={() => dayEvents.length > 0 && openDayDialog(date)}
-                          >
-                            {dayEvents.slice(0, 3).map((event, idx) => (
-                              <Box
-                                key={idx}
-                                sx={{
-                                  bgcolor: '#4a90e2',
-                                  borderRadius: 1,
-                                  px: 0.5,
-                                  py: 0.25,
-                                  mb: 0.5,
-                                  overflow: 'hidden'
-                                }}
-                              >
-                                <Typography
-                                  variant="caption"
-                                  sx={{
-                                    color: '#fff',
-                                    fontSize: '0.65rem',
-                                    display: 'block',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    whiteSpace: 'nowrap'
-                                  }}
-                                >
-                                  {event.title}
-                                </Typography>
-                              </Box>
-                            ))}
-                            
-                            {dayEvents.length > 3 && (
-                              <Typography
-                                variant="caption"
-                                sx={{
-                                  color: '#8e8ea0',
-                                  fontSize: '0.65rem'
-                                }}
-                              >
-                                +{dayEvents.length - 3} more
-                              </Typography>
-                            )}
-                          </Card>
-                        </Grid>
-                      );
-                    }
-                    
-                    // For 2weeks and month views, show in grid format
-                    return (
-                      <Grid item xs={12/7} key={index}>
-                        <Card
+                        <Box
+                          key={index}
                           sx={{
-                            bgcolor: isCurrentMonth ? '#2a2a3e' : '#1a1a2e',
-                            border: isToday ? '2px solid #4a90e2' : '1px solid #3a3a4e',
-                            borderRadius: 2,
-                            minHeight: calendarView === 'month' ? 160 : 120,
-                            p: 1,
+                            flex: '0 0 calc(100% / 7)',
+                            width: 'calc(100% / 7)',
+                            borderRight: index < 6 ? '1px solid #2a2a3e' : 'none',
+                            minHeight: 150,
+                            p: 0.5,
+                            bgcolor: '#1a1a2e',
                             cursor: dayEvents.length > 0 ? 'pointer' : 'default',
-                            transition: 'all 0.2s',
+                            boxSizing: 'border-box',
                             '&:hover': {
-                              borderColor: dayEvents.length > 0 ? '#4a90e2' : '#3a3a4e',
-                              transform: dayEvents.length > 0 ? 'translateY(-2px)' : 'none',
+                              bgcolor: dayEvents.length > 0 ? '#252538' : '#1a1a2e',
                             },
                           }}
                           onClick={() => dayEvents.length > 0 && openDayDialog(date)}
                         >
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              color: isToday ? '#4a90e2' : (isCurrentMonth ? '#fff' : '#6e6e80'),
-                              fontWeight: isToday ? 700 : 600,
-                              display: 'block',
-                              mb: 0.5
-                            }}
-                          >
-                            {date.getDate()}
-                          </Typography>
-                          
-                          {dayEvents.slice(0, calendarView === 'month' ? 4 : 3).map((event, idx) => (
+                          {dayEvents.slice(0, 4).map((event, idx) => (
                             <Box
                               key={idx}
                               sx={{
-                                bgcolor: '#4a90e2',
+                                bgcolor: eventColors[idx % eventColors.length],
                                 borderRadius: 1,
-                                px: 0.5,
-                                py: 0.25,
+                                px: 1,
+                                py: 0.5,
                                 mb: 0.5,
                                 overflow: 'hidden'
                               }}
                             >
                               <Typography
-                                variant="caption"
                                 sx={{
-                                  color: '#fff',
-                                  fontSize: '0.65rem',
-                                  display: 'block',
+                                  color: '#000',
+                                  fontSize: '0.7rem',
+                                  fontWeight: 500,
                                   overflow: 'hidden',
                                   textOverflow: 'ellipsis',
                                   whiteSpace: 'nowrap'
@@ -569,35 +537,133 @@ const Event = () => {
                               >
                                 {event.title}
                               </Typography>
+                              <Typography
+                                sx={{
+                                  color: 'rgba(0,0,0,0.7)',
+                                  fontSize: '0.6rem',
+                                }}
+                              >
+                                {formatTime(event.start_datetime)}
+                              </Typography>
                             </Box>
                           ))}
-                          
-                          {dayEvents.length > (calendarView === 'month' ? 4 : 3) && (
+
+                          {dayEvents.length > 4 && (
                             <Typography
-                              variant="caption"
                               sx={{
                                 color: '#8e8ea0',
-                                fontSize: '0.65rem'
+                                fontSize: '0.65rem',
+                                pl: 0.5
                               }}
                             >
-                              +{dayEvents.length - (calendarView === 'month' ? 4 : 3)} more
+                              +{dayEvents.length - 4} more
                             </Typography>
                           )}
-                        </Card>
-                      </Grid>
+                        </Box>
+                      );
+                    }
+                    
+                    // For 2weeks and month views, show in grid format
+                    const isEndOfRow = (index + 1) % 7 === 0;
+                    const rowIndex = Math.floor(index / 7);
+                    const totalRows = Math.ceil(dateArray.length / 7);
+                    const isLastRow = rowIndex === totalRows - 1;
+                    const eventColors = ['#e57373', '#81c784', '#64b5f6', '#ffb74d', '#ba68c8', '#4db6ac'];
+                    const maxEvents = calendarView === 'month' ? 2 : 2;
+
+                    return (
+                      <Box
+                        key={index}
+                        sx={{
+                          flex: '0 0 calc(100% / 7)',
+                          width: 'calc(100% / 7)',
+                          borderRight: !isEndOfRow ? '1px solid #2a2a3e' : 'none',
+                          borderBottom: !isLastRow ? '1px solid #2a2a3e' : 'none',
+                          minHeight: calendarView === 'month' ? 80 : 70,
+                          p: 0.5,
+                          bgcolor: '#1a1a2e',
+                          boxSizing: 'border-box',
+                          cursor: dayEvents.length > 0 ? 'pointer' : 'default',
+                          '&:hover': {
+                            bgcolor: dayEvents.length > 0 ? '#252538' : '#1a1a2e',
+                          },
+                        }}
+                        onClick={() => dayEvents.length > 0 && openDayDialog(date)}
+                      >
+                        <Box
+                          sx={{
+                            width: 24,
+                            height: 24,
+                            borderRadius: '50%',
+                            bgcolor: isToday ? '#4a90e2' : 'transparent',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            mb: 0.5
+                          }}
+                        >
+                          <Typography
+                            sx={{
+                              color: isToday ? '#fff' : (isCurrentMonth ? '#e0e0e0' : '#6e6e80'),
+                              fontWeight: isToday ? 600 : 400,
+                              fontSize: '0.75rem'
+                            }}
+                          >
+                            {date.getDate()}
+                          </Typography>
+                        </Box>
+
+                        {dayEvents.slice(0, maxEvents).map((event, idx) => (
+                          <Box
+                            key={idx}
+                            sx={{
+                              bgcolor: eventColors[idx % eventColors.length],
+                              borderRadius: 0.5,
+                              px: 0.5,
+                              py: 0.25,
+                              mb: 0.25,
+                              overflow: 'hidden'
+                            }}
+                          >
+                            <Typography
+                              sx={{
+                                color: '#000',
+                                fontSize: '0.55rem',
+                                fontWeight: 500,
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap'
+                              }}
+                            >
+                              {event.title}
+                            </Typography>
+                          </Box>
+                        ))}
+
+                        {dayEvents.length > maxEvents && (
+                          <Typography
+                            sx={{
+                              color: '#8e8ea0',
+                              fontSize: '0.55rem'
+                            }}
+                          >
+                            +{dayEvents.length - maxEvents} more
+                          </Typography>
+                        )}
+                      </Box>
                     );
                   });
                 })()}
-              </Grid>
+              </Box>
             </Box>
             
             {/* Next 5 Upcoming */}
             <Box sx={{ mt: 4 }}>
-              <Typography variant="h6" sx={{ color: '#fff', mb: 2, fontWeight: 600 }}>
+              <Typography variant="h6" sx={{ color: '#333', mb: 2, fontWeight: 600 }}>
                 Next 5 Upcoming
               </Typography>
               {getNextFiveEvents().length === 0 ? (
-                <Typography sx={{ color: '#8e8ea0' }}>No upcoming events</Typography>
+                <Typography sx={{ color: '#666' }}>No upcoming events</Typography>
               ) : (
                 <Stack spacing={1}>
                   {getNextFiveEvents().map((e) => (
@@ -634,7 +700,7 @@ const Event = () => {
               </Card>
             ) : (
               <Box sx={{ mt: 4 }}>
-                <Typography variant="h6" sx={{ color: '#fff', mb: 2, fontWeight: 600 }}>
+                <Typography variant="h6" sx={{ color: '#333', mb: 2, fontWeight: 600 }}>
                   All Events
                 </Typography>
                 <Stack spacing={3}>
@@ -722,7 +788,7 @@ const Event = () => {
         {/* Find Events Tab */}
         {activeTab === 1 && (
           <Box>
-            <Typography variant="body1" sx={{ color: '#8e8ea0', mb: 4 }}>
+            <Typography variant="body1" sx={{ color: '#666', mb: 4 }}>
               Discover and search for concerts, sports, theatre, and other events from Ticketmaster
             </Typography>
 
@@ -764,7 +830,7 @@ const Event = () => {
         {/* Find Places Tab */}
         {activeTab === 2 && (
           <Box>
-            <Typography variant="body1" sx={{ color: '#8e8ea0', mb: 4 }}>
+            <Typography variant="body1" sx={{ color: '#666', mb: 4 }}>
               Search for restaurants, bars, venues, and other locations with reviews and ratings
             </Typography>
 

@@ -23,6 +23,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
+const BackendURL = "https://guno6rd8a7.execute-api.us-west-2.amazonaws.com";
+
 /**
  * EventSearch component that integrates with Ticketmaster API for event search
  * Displays events with images, dates, venues, and ticket links
@@ -85,7 +87,7 @@ const EventSearch = ({
         params.append('city', eventLocation);
       }
 
-      const response = await fetch(`/api/TicketMaster/search?${params}`, {
+      const response = await fetch(`${BackendURL}/api/TicketMaster/search?${params}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

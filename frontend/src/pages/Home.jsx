@@ -7,6 +7,8 @@ import { PickersDay } from '@mui/x-date-pickers/PickersDay';
 import dayjs from 'dayjs';
 import Footer from '../components/Footer';
 
+const BackendURL = "https://guno6rd8a7.execute-api.us-west-2.amazonaws.com";
+
 const Home = () => {
   const [events, setEvents] = useState([]);
   const [selectedDate, setSelectedDate] = useState(dayjs());
@@ -18,7 +20,7 @@ const Home = () => {
     const fetchEvents = async () => {
       try {
         const params = userEmail ? `?email=${encodeURIComponent(userEmail)}` : '';
-        const response = await fetch(`/api/calendar/events${params}`);
+        const response = await fetch(`${BackendURL}/api/calendar/events${params}`);
         const data = await response.json();
 
         if (data.success) {
