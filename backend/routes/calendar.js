@@ -38,7 +38,7 @@ try {
   throw error;
 }
 
-const secret = response.SecretString;
+const secret = JSON.parse(response.SecretString);
 
 const oauth2Client = new google.auth.OAuth2(
   secret.GOOGLE_CLIENT_ID,

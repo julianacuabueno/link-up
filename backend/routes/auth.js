@@ -40,7 +40,7 @@ try {
   throw error;
 }
 
-const secret = response.SecretString;
+const secret = JSON.parse(response.SecretString);
 
 
 const router = Router();
@@ -216,29 +216,31 @@ export async function getAuthenticatedClient(email) {
   return client;
 }
 
-// Sync anonymous events to Google Calendar when user connects
+// Sync unsynced events to Google Calendar when user connects
 async function syncAnonymousEventsToGoogle(userEmail, authClient) {
   try {
-    // Find all anonymous events (created before user connected to Google)
+    // Find all events that haven't been synced to Google Calendar yet
+    // This includes: anonymous events AND events created by this user without a google_event_id
     const result = await docClient.send(new ScanCommand({
       TableName: TABLES.EVENTS,
-      FilterExpression: 'user_email = :anon AND attribute_not_exists(google_event_id)',
+      FilterExpression: '(user_email = :anon OR user_email = :email) AND attribute_not_exists(google_event_id)',
       ExpressionAttributeValues: {
-        ':anon': 'anonymous'
+        ':anon': 'anonymous',
+        ':email': userEmail
       }
     }));
 
-    const anonymousEvents = result.Items || [];
-    console.log(`Found ${anonymousEvents.length} anonymous events to sync to Google Calendar`);
+    const unsyncedEvents = result.Items || [];
+    console.log(`Found ${unsyncedEvents.length} unsynced events to sync to Google Calendar`);
 
-    if (anonymousEvents.length === 0) {
+    if (unsyncedEvents.length === 0) {
       return { synced: 0 };
     }
 
     const calendar = google.calendar({ version: 'v3', auth: authClient });
     let syncedCount = 0;
 
-    for (const event of anonymousEvents) {
+    for (const event of unsyncedEvents) {
       try {
         // Create event in Google Calendar
         const googleEvent = await calendar.events.insert({
@@ -277,7 +279,7 @@ async function syncAnonymousEventsToGoogle(userEmail, authClient) {
       }
     }
 
-    return { synced: syncedCount, total: anonymousEvents.length };
+    return { synced: syncedCount, total: unsyncedEvents.length };
   } catch (error) {
     console.error('Error syncing anonymous events:', error);
     return { synced: 0, error: error.message };
