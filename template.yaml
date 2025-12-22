@@ -49,7 +49,7 @@ Resources:
           # GOOGLE_CLIENT_ID: !Ref GoogleClientId
           # GOOGLE_CLIENT_SECRET: !Ref GoogleClientSecret
           # GOOGLE_REDIRECT_URI: "https://guno6rd8a7.execute-api.us-west-2.amazonaws.com/api/auth/google/callback"
-          FRONTEND_URL: "http://localhost:5173"
+          FRONTEND_URL: "https://dvsrbo9hf5u8u.cloudfront.net"
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref UsersTable
