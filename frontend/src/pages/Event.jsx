@@ -13,9 +13,12 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import Footer from '../components/Footer';
 import PlaceSearch from '../components/PlaceSearch';
 import EventSearch from '../components/EventSearch';
+import { useTheme } from '@mui/material/styles';
+
 
 const BackendURL = "https://guno6rd8a7.execute-api.us-west-2.amazonaws.com";
 const Event = () => {
+  const theme = useTheme();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
@@ -211,7 +214,7 @@ const Event = () => {
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
-        <CircularProgress sx={{ color: '#4a90e2' }} />
+        <CircularProgress sx={{ color: theme.palette.text.primary }} />
       </Box>
     );
   }
@@ -219,7 +222,7 @@ const Event = () => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
       <Box sx={{ flexGrow: 1 }}>
-        <Typography variant="h3" sx={{ color: 'black', mb: 3, fontWeight: 600 }}>
+        <Typography variant="h3" sx={{ color: theme.palette.text.primary, mb: 3, fontWeight: 600 }}>
           Events & Places
         </Typography>
 
@@ -257,7 +260,7 @@ const Event = () => {
                     sx={{
                       bgcolor: calendarView === 'week' ? '#4a90e2' : 'transparent',
                       borderColor: '#4a90e2',
-                      color: calendarView === 'week' ? '#fff' : '#4a90e2',
+                      color: calendarView === 'week' ? theme.palette.text.primary : '#4a90e2',
                       textTransform: 'none',
                       '&:hover': {
                         bgcolor: calendarView === 'week' ? '#357abd' : 'rgba(74, 144, 226, 0.1)'
@@ -272,7 +275,7 @@ const Event = () => {
                     sx={{
                       bgcolor: calendarView === '2weeks' ? '#4a90e2' : 'transparent',
                       borderColor: '#4a90e2',
-                      color: calendarView === '2weeks' ? '#fff' : '#4a90e2',
+                      color: calendarView === '2weeks' ? theme.palette.text.primary : '#4a90e2',
                       textTransform: 'none',
                       '&:hover': {
                         bgcolor: calendarView === '2weeks' ? '#357abd' : 'rgba(74, 144, 226, 0.1)'
@@ -287,7 +290,7 @@ const Event = () => {
                     sx={{
                       bgcolor: calendarView === 'month' ? '#4a90e2' : 'transparent',
                       borderColor: '#4a90e2',
-                      color: calendarView === 'month' ? '#fff' : '#4a90e2',
+                      color: calendarView === 'month' ? theme.palette.text.primary : '#4a90e2',
                       textTransform: 'none',
                       '&:hover': {
                         bgcolor: calendarView === 'month' ? '#357abd' : 'rgba(74, 144, 226, 0.1)'
@@ -363,17 +366,17 @@ const Event = () => {
               </DialogTitle>
               <DialogContent dividers>
                 {selectedDayEvents.length === 0 ? (
-                  <Typography sx={{ color: '#8e8ea0' }}>No events for this day</Typography>
+                  <Typography sx={{ color: theme.palette.text.secondary }}>No events for this day</Typography>
                 ) : (
                   <Stack spacing={2}>
                     {selectedDayEvents.map((e) => (
                       <Box key={e.id}>
                         <Typography sx={{ fontWeight: 600 }}>{e.title}</Typography>
-                        <Typography sx={{ color: '#6e6e80' }}>
+                        <Typography sx={{ color: theme.palette.text.secondary }}>
                           {formatDate(e.start_datetime)} • {formatTime(e.start_datetime)}
                         </Typography>
                         {e.location && (
-                          <Typography sx={{ color: '#8e8ea0' }}>{e.location}</Typography>
+                          <Typography sx={{ color: theme.palette.text.secondary }}>{e.location}</Typography>
                         )}
                         <Divider sx={{ mt: 1 }} />
                       </Box>
@@ -389,10 +392,11 @@ const Event = () => {
 
             {/* Calendar Grid - Google Calendar Style */}
             <Box sx={{
-              border: '1px solid #3a3a4e',
+              border: 1,
+              borderColor: 'divider',
               borderRadius: 2,
               overflow: 'hidden',
-              bgcolor: '#1a1a2e'
+              bgcolor: 'background.paper'
             }}>
               {/* Header row with day names and date numbers */}
               {calendarView === 'week' && (() => {
@@ -437,7 +441,7 @@ const Event = () => {
                             <Typography
                               variant="h6"
                               sx={{
-                                color: isToday ? '#fff' : '#e0e0e0',
+                                color: isToday ? theme.palette.text.primary : theme.palette.text.secondary,
                                 fontWeight: isToday ? 600 : 400,
                                 fontSize: '1.1rem'
                               }}
@@ -460,7 +464,7 @@ const Event = () => {
                       <Typography
                         variant="caption"
                         sx={{
-                          color: '#8e8ea0',
+                          color: theme.palette.text.secondary,
                           fontWeight: 500,
                           fontSize: '0.7rem',
                           letterSpacing: '0.5px'
@@ -529,7 +533,7 @@ const Event = () => {
                             cursor: dayEvents.length > 0 ? 'pointer' : 'default',
                             boxSizing: 'border-box',
                             '&:hover': {
-                              bgcolor: dayEvents.length > 0 ? '#252538' : '#1a1a2e',
+                              bgcolor: dayEvents.length > 0 ? '#252538' : theme.palette.background.paper,
                             },
                           }}
                           onClick={() => dayEvents.length > 0 && openDayDialog(date)}
@@ -548,7 +552,7 @@ const Event = () => {
                             >
                               <Typography
                                 sx={{
-                                  color: '#000',
+                                  color: theme.palette.text.primary,
                                   fontSize: '0.7rem',
                                   fontWeight: 500,
                                   overflow: 'hidden',
@@ -572,7 +576,7 @@ const Event = () => {
                           {dayEvents.length > 4 && (
                             <Typography
                               sx={{
-                                color: '#8e8ea0',
+                                color: theme.palette.text.secondary,
                                 fontSize: '0.65rem',
                                 pl: 0.5
                               }}
@@ -598,15 +602,16 @@ const Event = () => {
                         sx={{
                           flex: '0 0 calc(100% / 7)',
                           width: 'calc(100% / 7)',
-                          borderRight: !isEndOfRow ? '1px solid #2a2a3e' : 'none',
-                          borderBottom: !isLastRow ? '1px solid #2a2a3e' : 'none',
+                          borderRight: !isEndOfRow ? 1 : 'none',
+                          borderBottom: !isLastRow ? 1 : 'none',
+                          borderColor: 'divider',
                           minHeight: calendarView === 'month' ? 80 : 70,
                           p: 0.5,
-                          bgcolor: '#1a1a2e',
+                          bgcolor: 'background.paper',
                           boxSizing: 'border-box',
                           cursor: dayEvents.length > 0 ? 'pointer' : 'default',
                           '&:hover': {
-                            bgcolor: dayEvents.length > 0 ? '#252538' : '#1a1a2e',
+                            bgcolor: 'action.hover',
                           },
                         }}
                         onClick={() => dayEvents.length > 0 && openDayDialog(date)}
@@ -625,7 +630,7 @@ const Event = () => {
                         >
                           <Typography
                             sx={{
-                              color: isToday ? '#fff' : (isCurrentMonth ? '#e0e0e0' : '#6e6e80'),
+                              color: isToday ? theme.palette.text.primary : (isCurrentMonth ? theme.palette.text.secondary : theme.palette.text.secondary),
                               fontWeight: isToday ? 600 : 400,
                               fontSize: '0.75rem'
                             }}
@@ -648,7 +653,7 @@ const Event = () => {
                           >
                             <Typography
                               sx={{
-                                color: '#000',
+                                color: theme.palette.text.primary,
                                 fontSize: '0.55rem',
                                 fontWeight: 500,
                                 overflow: 'hidden',
@@ -664,7 +669,7 @@ const Event = () => {
                         {dayEvents.length > maxEvents && (
                           <Typography
                             sx={{
-                              color: '#8e8ea0',
+                              color: theme.palette.text.secondary,
                               fontSize: '0.55rem'
                             }}
                           >
@@ -684,15 +689,22 @@ const Event = () => {
                 Next 5 Upcoming
               </Typography>
               {getNextFiveEvents().length === 0 ? (
-                <Typography sx={{ color: '#666' }}>No upcoming events</Typography>
+                <Typography sx={{ color: theme.palette.text.primary }}>No upcoming events</Typography>
               ) : (
                 <Stack spacing={1}>
                   {getNextFiveEvents().map((e) => (
-                    <Box key={e.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1.5, bgcolor: '#1f1f2f', borderRadius: 1, border: '1px solid #2f2f40' }}>
-                      <Typography sx={{ color: '#fff', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{e.title}</Typography>
+                    <Box key={e.id} sx={{ display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      p: 1.5,
+                      bgcolor: 'background.paper',
+                      borderRadius: 1,
+                      border: 1,
+                      borderColor: 'divider'}}>
+                      <Typography sx={{ color: theme.palette.text.secondary, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{e.title}</Typography>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Typography sx={{ color: '#b0b0c0' }}>{formatDate(e.start_datetime)}</Typography>
-                        <Typography sx={{ color: '#8e8ea0' }}>{formatTime(e.start_datetime)}</Typography>
+                        <Typography sx={{ color: theme.palette.text.disabled }}>{formatDate(e.start_datetime)}</Typography>
+                        <Typography sx={{ color: theme.palette.text.secondary }}>{formatTime(e.start_datetime)}</Typography>
                       </Box>
                     </Box>
                   ))}
@@ -704,7 +716,7 @@ const Event = () => {
             {events.length === 0 ? (
               <Card
                 sx={{
-                  bgcolor: '#2a2a3e',
+                  bgcolor: theme.palette.background.paper,
                   border: '1px solid #3a3a4e',
                   borderRadius: 2,
                   p: 4,
@@ -712,10 +724,10 @@ const Event = () => {
                   mt: 3
                 }}
               >
-                <Typography variant="h6" sx={{ color: '#8e8ea0' }}>
+                <Typography variant="h6" sx={{ color: theme.palette.text.secondary }}>
                   No upcoming events
                 </Typography>
-                <Typography variant="body2" sx={{ color: '#6e6e80', mt: 1 }}>
+                <Typography variant="body2" sx={{ color: theme.palette.text.secondary, mt: 1 }}>
                   Create a new event to get started!
                 </Typography>
               </Card>
@@ -729,7 +741,7 @@ const Event = () => {
                   <Card
                     key={event.id}
                     sx={{
-                      bgcolor: '#2a2a3e',
+                      bgcolor: 'background.paper',
                       border: '1px solid #3a3a4e',
                       borderRadius: 2,
                       transition: 'all 0.2s',
@@ -741,7 +753,7 @@ const Event = () => {
                   >
                     <CardContent>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                        <Typography variant="h6" sx={{ color: '#fff', fontWeight: 600 }}>
+                        <Typography variant="h6" sx={{ color: theme.palette.text.secondary, fontWeight: 600 }}>
                           {event.title}
                         </Typography>
                         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
@@ -749,13 +761,13 @@ const Event = () => {
                             <Chip
                               label="Google"
                               size="small"
-                              sx={{ bgcolor: '#4285f4', color: '#fff' }}
+                              sx={{ bgcolor: '#4285f4', color: theme.palette.text.secondary }}
                             />
                           )}
                           <Chip
                             label={`${event.attendees || 0} attending`}
                             size="small"
-                            sx={{ bgcolor: '#4a90e2', color: '#fff' }}
+                            sx={{ bgcolor: theme.palette.primary.main, color: theme.palette.text.secondary }}
                           />
                           <Button
                             size="small"
@@ -768,30 +780,30 @@ const Event = () => {
                       </Box>
 
                       {event.description && (
-                        <Typography variant="body2" sx={{ color: '#b0b0c0', mb: 2 }}>
+                        <Typography variant="body2" sx={{ color: theme.palette.text.disabled, mb: 2 }}>
                           {event.description}
                         </Typography>
                       )}
 
                       <Stack spacing={1}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <EventIcon sx={{ color: '#8e8ea0', fontSize: 20 }} />
-                          <Typography variant="body2" sx={{ color: '#b0b0c0' }}>
+                          <EventIcon sx={{ color: theme.palette.text.secondary, fontSize: 20 }} />
+                          <Typography variant="body2" sx={{ color: theme.palette.text.disabled }}>
                             {formatDate(event.start_datetime)}
                           </Typography>
                         </Box>
 
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <AccessTimeIcon sx={{ color: '#8e8ea0', fontSize: 20 }} />
-                          <Typography variant="body2" sx={{ color: '#b0b0c0' }}>
+                          <AccessTimeIcon sx={{ color: theme.palette.text.secondary, fontSize: 20 }} />
+                          <Typography variant="body2" sx={{ color: theme.palette.text.disabled }}>
                             {formatTime(event.start_datetime)} - {formatTime(event.end_datetime)}
                           </Typography>
                         </Box>
 
                         {event.location && (
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <LocationOnIcon sx={{ color: '#8e8ea0', fontSize: 20 }} />
-                            <Typography variant="body2" sx={{ color: '#b0b0c0' }}>
+                            <LocationOnIcon sx={{ color: theme.palette.text.secondary, fontSize: 20 }} />
+                            <Typography variant="body2" sx={{ color: theme.palette.text.disabled }}>
                               {event.location}
                             </Typography>
                           </Box>
@@ -809,7 +821,7 @@ const Event = () => {
         {/* Find Events Tab */}
         {activeTab === 1 && (
           <Box>
-            <Typography variant="body1" sx={{ color: '#666', mb: 4 }}>
+            <Typography variant="body1" sx={{ color: theme.palette.text.primary, mb: 4 }}>
               Discover and search for concerts, sports, theatre, and other events from Ticketmaster
             </Typography>
 
@@ -823,22 +835,22 @@ const Event = () => {
               onEventSelect={handleEventSelect}
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  color: '#000',
+                  color: theme.palette.text.primary,
                   '& fieldset': {
-                    borderColor: '#4a4a5e',
+                    borderColor: theme.palette.primary.main,
                   },
                   '&:hover fieldset': {
                     borderColor: '#6a6a7e',
                   },
                   '&.Mui-focused fieldset': {
-                    borderColor: '#4a90e2',
+                    borderColor: theme.palette.primary.main,
                   },
                 },
                 '& .MuiInputLabel-root': {
-                  color: '#8e8ea0',
+                  color: theme.palette.text.secondary,
                 },
                 '& .MuiInputBase-input': {
-                  color: '#000',
+                  color: theme.palette.text.primary,
                   '&::placeholder': {
                     color: '#999',
                     opacity: 1,
@@ -852,7 +864,7 @@ const Event = () => {
         {/* Find Places Tab */}
         {activeTab === 2 && (
           <Box>
-            <Typography variant="body1" sx={{ color: '#666', mb: 4 }}>
+            <Typography variant="body1" sx={{ color: theme.palette.text.primary, mb: 4 }}>
               Search for restaurants, bars, venues, and other locations with reviews and ratings
             </Typography>
 
@@ -866,7 +878,7 @@ const Event = () => {
               onPlaceSelect={handlePlaceSelect}
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  color: '#000',
+                  color: theme.palette.text.primary,
                   '& fieldset': {
                     borderColor: '#4a4a5e',
                   },
@@ -878,10 +890,10 @@ const Event = () => {
                   },
                 },
                 '& .MuiInputLabel-root': {
-                  color: '#8e8ea0',
+                  color: theme.palette.text.secondary,
                 },
                 '& .MuiInputBase-input': {
-                  color: '#000',
+                  color: theme.palette.text.primary,
                   '&::placeholder': {
                     color: '#999',
                     opacity: 1,

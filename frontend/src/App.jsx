@@ -1,17 +1,21 @@
-import { useEffect } from 'react'
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
-import { Box } from '@mui/material'
-import Navbar from './components/Navbar'
-import Home from './pages/Home'
-import Event from './pages/Event'
-import Create from './pages/Create'
-import Settings from './pages/Settings'
-import About from './pages/About'
-import Feedback from './pages/Feedback'
-import AccountSettings from './pages/AccountSettings'
-import Login from './pages/Login'
+// App.jsx
+import { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { Box, ThemeProvider as MUIThemeProvider, CssBaseline } from '@mui/material';
+import { useTheme } from './context/ThemeContext';
+import { getTheme } from './theme';
 
-import './App.css'
+import Navbar from './components/Navbar';
+import Home from './pages/Home';
+import Event from './pages/Event';
+import Create from './pages/Create';
+import Settings from './pages/Settings';
+import About from './pages/About';
+import Feedback from './pages/Feedback';
+import AccountSettings from './pages/AccountSettings';
+import Login from './pages/Login';
+
+import './App.css';
 
 const AppLayout = () => {
   const location = useLocation();
@@ -26,17 +30,18 @@ const AppLayout = () => {
   }
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-      <Navbar />
+    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default', color: 'text.primary' }}>
+      <Navbar /> {/* Navbar will inherit background/text colors from theme */}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
-          bgcolor: '#white',
+          bgcolor: 'background.default',
           p: 8,
           display: 'flex',
           flexDirection: 'column',
           width: '100%',
+          color: 'text.primary',
         }}
       >
         <Routes>
@@ -54,6 +59,8 @@ const AppLayout = () => {
 };
 
 function App() {
+  const { theme } = useTheme(); // 'light' or 'dark' from ThemeContext
+
   useEffect(() => {
     fetch("https://sfnn09foxd.execute-api.us-west-2.amazonaws.com/api/hello")
       .then((response) => response.json())
@@ -61,10 +68,13 @@ function App() {
   }, []);
 
   return (
-    <BrowserRouter>
-      <AppLayout />
-    </BrowserRouter>
-  )
+    <MUIThemeProvider theme={getTheme(theme)}>
+      <CssBaseline />
+      <BrowserRouter>
+        <AppLayout />
+      </BrowserRouter>
+    </MUIThemeProvider>
+  );
 }
 
-export default App
+export default App;

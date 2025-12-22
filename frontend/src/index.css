@@ -1,5 +1,8 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Google Sans Code', monospace;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
   line-height: 1.5;
   font-weight: 400;
 
@@ -7,6 +10,12 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Jersey 20', sans-serif;
+  margin: 0; /* optional: reset default spacing */
+  color: black
 }
 
 a {
@@ -29,6 +38,7 @@ body {
   min-width: 320px;
   min-height: 100vh;
   background-color: #f7f9fa;
+  color: black
 }
 
 h1 {
@@ -53,3 +63,5 @@ button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
+
+
