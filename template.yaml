@@ -85,6 +85,7 @@ Resources:
     Properties:
       TableName: !Sub "${AWS::StackName}-users"
       BillingMode: PAY_PER_REQUEST
+    
       AttributeDefinitions:
         - AttributeName: email
           AttributeType: S

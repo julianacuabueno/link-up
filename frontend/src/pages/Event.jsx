@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Box, Typography, Card, CardContent, Stack, Chip, CircularProgress, Button, Tabs, Tab, ButtonGroup, Dialog, DialogTitle, DialogContent, IconButton, Divider } from '@mui/material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
@@ -31,6 +31,7 @@ const Event = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedDayEvents, setSelectedDayEvents] = useState([]);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const userEmail = localStorage.getItem('userEmail');
 
@@ -174,6 +175,26 @@ const Event = () => {
     setDayDialogOpen(true);
   };
   const closeDayDialog = () => setDayDialogOpen(false);
+
+  // Handle event selection from EventSearch - navigate to Create with data
+  const handleEventSelect = (eventData) => {
+    navigate('/create', {
+      state: {
+        eventData,
+        activeTab: 1 // Switch to Create Event tab
+      }
+    });
+  };
+
+  // Handle place selection from PlaceSearch - navigate to Create with data
+  const handlePlaceSelect = (placeData) => {
+    navigate('/create', {
+      state: {
+        eventData: placeData,
+        activeTab: 1 // Switch to Create Event tab
+      }
+    });
+  };
 
   // Next 5 upcoming events from now
   const getNextFiveEvents = () => {
@@ -799,6 +820,7 @@ const Event = () => {
               onLocationChange={setEventLocation}
               searchLabel="Search for events"
               locationLabel="Location"
+              onEventSelect={handleEventSelect}
               sx={{
                 '& .MuiOutlinedInput-root': {
                   color: '#000',
@@ -841,6 +863,7 @@ const Event = () => {
               onLocationChange={setPlaceLocation}
               searchLabel="Search for places"
               locationLabel="Location"
+              onPlaceSelect={handlePlaceSelect}
               sx={{
                 '& .MuiOutlinedInput-root': {
                   color: '#000',

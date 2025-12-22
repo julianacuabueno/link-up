@@ -25,6 +25,7 @@ import StarIcon from '@mui/icons-material/Star';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import SearchIcon from '@mui/icons-material/Search';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
 const BackendURL = "https://guno6rd8a7.execute-api.us-west-2.amazonaws.com";
 
@@ -39,15 +40,17 @@ const BackendURL = "https://guno6rd8a7.execute-api.us-west-2.amazonaws.com";
  * @param {string} props.searchLabel - Label for the search field
  * @param {string} props.locationLabel - Label for the location field
  * @param {Object} props.sx - Additional styles for the text fields
+ * @param {function} props.onPlaceSelect - Callback when user selects a place to use for creating an event
  */
-const PlaceSearch = ({ 
-  searchTerm = '', 
-  onSearchChange, 
-  location = '', 
+const PlaceSearch = ({
+  searchTerm = '',
+  onSearchChange,
+  location = '',
   onLocationChange,
   searchLabel = "Search for places",
   locationLabel = "Location",
-  sx = {} 
+  sx = {},
+  onPlaceSelect
 }) => {
   const [search, setSearch] = useState(searchTerm || '');
   const [loc, setLoc] = useState(location || '');
@@ -259,6 +262,36 @@ const PlaceSearch = ({
     return price.replace(/\$/g, '💰');
   };
 
+  /**
+   * Handles selecting a place to use for creating an event
+   * @param {Object} place - Selected place from Yelp
+   */
+  const handleUseForEvent = (place) => {
+    if (!onPlaceSelect) return;
+
+    // Build full address
+    const addressParts = [];
+    if (place.location?.address1) addressParts.push(place.location.address1);
+    if (place.location?.city) addressParts.push(place.location.city);
+    if (place.location?.state) addressParts.push(place.location.state);
+    if (place.location?.zip_code) addressParts.push(place.location.zip_code);
+    const fullAddress = addressParts.join(', ');
+
+    // Build description from categories
+    const categoryNames = place.categories?.map(cat => cat.title).join(', ') || '';
+    const description = categoryNames ? `${place.name} - ${categoryNames}` : place.name;
+
+    const placeData = {
+      title: place.name || '',
+      date: '', // Yelp places don't have event dates
+      time: '', // Yelp places don't have event times
+      location: fullAddress,
+      description
+    };
+
+    onPlaceSelect(placeData);
+  };
+
   return (
     <Box sx={{ position: 'relative', width: '100%' }}>
       <Box sx={{ display: 'flex', gap: 2, width: '100%' }}>
@@ -376,7 +409,7 @@ const PlaceSearch = ({
                     </Box>
                   </CardContent>
 
-                  <CardActions sx={{ p: 2, pt: 0 }}>
+                  <CardActions sx={{ p: 2, pt: 0, flexDirection: 'column', gap: 1 }}>
                     <Button
                       fullWidth
                       size="small"
@@ -395,6 +428,32 @@ const PlaceSearch = ({
                         <>Show Reviews <ExpandMoreIcon fontSize="small" /></>
                       )}
                     </Button>
+                    {onPlaceSelect && (
+                      <Button
+                        fullWidth
+                        size="small"
+                        variant="contained"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUseForEvent(place);
+                        }}
+                        startIcon={<AddCircleOutlineIcon fontSize="small" />}
+                        sx={{
+                          fontSize: '0.75rem',
+                          textTransform: 'none',
+                          bgcolor: '#2a2a3e',
+                          color: '#fff',
+                          border: '1px solid #3a3a4e',
+                          whiteSpace: 'nowrap',
+                          '&:hover': {
+                            bgcolor: '#3a3a4e',
+                            borderColor: '#4a90e2',
+                          },
+                        }}
+                      >
+                        Use for Event
+                      </Button>
+                    )}
                   </CardActions>
 
                   {/* Expanded reviews section */}

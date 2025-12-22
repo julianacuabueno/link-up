@@ -22,6 +22,7 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
 const BackendURL = "https://guno6rd8a7.execute-api.us-west-2.amazonaws.com";
 
@@ -36,15 +37,17 @@ const BackendURL = "https://guno6rd8a7.execute-api.us-west-2.amazonaws.com";
  * @param {string} props.searchLabel - Label for the search field
  * @param {string} props.locationLabel - Label for the location field
  * @param {Object} props.sx - Additional styles for the text fields
+ * @param {function} props.onEventSelect - Callback when user selects an event to use for creating
  */
-const EventSearch = ({ 
-  searchTerm = '', 
-  onSearchChange, 
-  location = '', 
+const EventSearch = ({
+  searchTerm = '',
+  onSearchChange,
+  location = '',
   onLocationChange,
   searchLabel = "Search for events",
   locationLabel = "Location",
-  sx = {} 
+  sx = {},
+  onEventSelect
 }) => {
   const [search, setSearch] = useState(searchTerm || '');
   const [loc, setLoc] = useState(location || '');
@@ -199,6 +202,59 @@ const EventSearch = ({
    */
   const getTicketUrl = (event) => {
     return event.url || event.ticketmaster?.ticketsUrl || null;
+  };
+
+  /**
+   * Gets full venue address from event
+   */
+  const getFullVenueAddress = (event) => {
+    const venue = event._embedded?.venues?.[0];
+    if (!venue) return '';
+    let address = venue.name || '';
+    if (venue.address?.line1) {
+      address += `, ${venue.address.line1}`;
+    }
+    if (venue.city?.name) {
+      address += `, ${venue.city.name}`;
+    }
+    if (venue.state?.stateCode) {
+      address += ` ${venue.state.stateCode}`;
+    }
+    if (venue.postalCode) {
+      address += ` ${venue.postalCode}`;
+    }
+    return address;
+  };
+
+  /**
+   * Handles selecting an event to use for creating
+   */
+  const handleUseForEvent = (event) => {
+    if (!onEventSelect) return;
+
+    // Parse date and time from ISO string
+    let date = '';
+    let time = '';
+    if (event.dates?.start?.dateTime) {
+      const dateObj = new Date(event.dates.start.dateTime);
+      date = dateObj.toISOString().split('T')[0]; // YYYY-MM-DD
+      time = dateObj.toTimeString().slice(0, 5); // HH:MM
+    } else if (event.dates?.start?.localDate) {
+      date = event.dates.start.localDate;
+      if (event.dates?.start?.localTime) {
+        time = event.dates.start.localTime.slice(0, 5);
+      }
+    }
+
+    const eventData = {
+      title: event.name || '',
+      date,
+      time,
+      location: getFullVenueAddress(event),
+      description: event.info || event.pleaseNote || ''
+    };
+
+    onEventSelect(eventData);
   };
 
   return (
@@ -356,6 +412,29 @@ const EventSearch = ({
                           }}
                         >
                           <OpenInNewIcon fontSize="small" />
+                        </Button>
+                      )}
+                      {onEventSelect && (
+                        <Button
+                          size="small"
+                          variant="contained"
+                          onClick={() => handleUseForEvent(event)}
+                          startIcon={<AddCircleOutlineIcon fontSize="small" />}
+                          sx={{
+                            fontSize: '0.75rem',
+                            textTransform: 'none',
+                            bgcolor: '#2a2a3e',
+                            color: '#fff',
+                            border: '1px solid #3a3a4e',
+                            whiteSpace: 'nowrap',
+                            '&:hover': {
+                              bgcolor: '#3a3a4e',
+                              borderColor: '#4a90e2',
+                            },
+                            ml: 'auto',
+                          }}
+                        >
+                          Use for Event
                         </Button>
                       )}
                     </Box>

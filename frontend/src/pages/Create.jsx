@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Box, Typography, Card, CardContent, TextField, Button, Stack, Alert, Snackbar, Tabs, Tab, Grid, Chip, CircularProgress } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EventIcon from '@mui/icons-material/Event';
@@ -13,6 +13,7 @@ const BackendURL = "https://guno6rd8a7.execute-api.us-west-2.amazonaws.com";
 
 const Create = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState(0);
   const [categories, setCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
@@ -152,6 +153,30 @@ const Create = () => {
   useEffect(() => {
     loadAllCategories();
   }, []);
+
+  // Handle navigation state from Event page (selected event/place data)
+  useEffect(() => {
+    if (location.state?.eventData) {
+      const { eventData, activeTab: newTab } = location.state;
+
+      // Populate form with event data
+      setFormData({
+        title: eventData.title || '',
+        date: eventData.date || '',
+        time: eventData.time || '',
+        location: eventData.location || '',
+        description: eventData.description || ''
+      });
+
+      // Switch to Create Event tab
+      if (newTab !== undefined) {
+        setActiveTab(newTab);
+      }
+
+      // Clear the navigation state to prevent re-triggering
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   // Handle category selection
   const handleCategorySelect = (category) => {
